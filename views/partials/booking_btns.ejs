@@ -1,0 +1,17 @@
+<%# Tombol aksi pesanan (hanya yang sah untuk status & peran). Locals: url, actions, status, back?, note? %>
+<% const META = {
+  lunas: ['btn-gold', 'bi-cash-coin', 'Tandai lunas', 'Tandai pesanan ini LUNAS? E-tiket dan nomor antrian akan diterbitkan.'],
+  batal: ['btn-outline-danger', 'bi-x-circle', status === 'paid' ? 'Batalkan dan refund' : 'Batalkan', status === 'paid' ? 'Batalkan pesanan LUNAS ini dan refund? E-tiket dan nomor antrian dicabut.' : 'Batalkan pesanan ini?'],
+  checkin: ['btn-green', 'bi-box-arrow-in-right', 'Check-in manual', 'Check-in pengunjung ini sekarang?'],
+  aktifkan: ['btn-outline-green', 'bi-arrow-counterclockwise', 'Aktifkan kembali', 'Aktifkan kembali pesanan ini? Batas bayar diperpanjang 30 menit.'],
+  reset_checkin: ['btn-outline-secondary', 'bi-arrow-90deg-left', 'Batalkan check-in', 'Batalkan check-in? Tiket kembali berstatus belum dipakai.'] }; %>
+<% if (!actions.length) { %><div class="small text-muted">Tidak ada aksi yang tersedia untuk status ini.</div><% } else { %>
+<form method="post" action="<%= url %>">
+  <%- csrfField %>
+  <% if (typeof back !== 'undefined' && back) { %><input type="hidden" name="back" value="<%= back %>"><% } %>
+  <% if (typeof note !== 'undefined' && note) { %><input name="catatan" maxlength="200" class="form-control mb-3" aria-label="Catatan perubahan status" placeholder="Catatan (opsional), mis. bayar tunai di loket"><% } %>
+  <div class="act-row"><% actions.forEach(a => { %>
+    <button name="aksi" value="<%= a %>" class="btn <%= (typeof note !== 'undefined' && note) ? '' : 'btn-sm' %> <%= META[a][0] %>" onclick="return confirm('<%= META[a][3] %>')"><i class="bi <%= META[a][1] %> me-1"></i><%= META[a][2] %></button>
+  <% }) %></div>
+</form>
+<% } %>

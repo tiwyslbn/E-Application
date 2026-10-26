@@ -1,0 +1,42 @@
+<% switch (code) {
+  case 'IM': %>
+  <rect x="105" y="130" width="190" height="40" fill="#e6a800"/><rect x="105" y="124" width="190" height="8" fill="#c98a00"/>
+  <rect x="176" y="88" width="48" height="44" fill="#f2b705"/><path d="M172 90 Q200 44 228 90Z" fill="#b97d00"/>
+  <rect x="198.5" y="34" width="3" height="16" fill="#b97d00"/><circle cx="200" cy="33" r="3" fill="#ffe08a"/>
+  <g fill="#b97d00"><rect x="112" y="102" width="22" height="30"/><path d="M109 104 Q123 74 137 104Z"/><rect x="266" y="102" width="22" height="30"/><path d="M263 104 Q277 74 291 104Z"/></g>
+  <g fill="#7a4e00"><path d="M190 170 v-18 a10 10 0 0 1 20 0 v18z"/><% [130,150,170,230,250,270].forEach(x => { %><path d="M<%= x %> 152 v-12 a6 6 0 0 1 12 0 v12z"/><% }) %><path d="M188 120 v-14 a12 12 0 0 1 24 0 v14z"/></g>
+<% break; case 'MR': %>
+  <rect x="120" y="128" width="160" height="42" fill="#f4efe0"/><path d="M146 130 Q200 54 254 130Z" fill="#0f5c4d"/>
+  <rect x="198" y="52" width="4" height="12" fill="#0f5c4d"/><circle cx="200" cy="50" r="3" fill="#f2b705"/>
+  <path d="M122 130 Q140 100 158 130Z" fill="#0f5c4d"/><path d="M242 130 Q260 100 278 130Z" fill="#0f5c4d"/>
+  <g fill="#f4efe0"><rect x="100" y="76" width="10" height="94"/><rect x="290" y="76" width="10" height="94"/></g>
+  <g fill="#0f5c4d"><path d="M98 78 L105 54 L112 78Z"/><path d="M288 78 L295 54 L302 78Z"/></g>
+  <g fill="#0b4036"><% [140,168,196,224,252].forEach(x => { %><path d="M<%= x %> 170 v-16 a8 8 0 0 1 16 0 v16z"/><% }) %></g>
+<% break; case 'MN': %>
+  <path d="M110 112 L200 76 L290 112Z" fill="#7a4e2d"/><rect x="112" y="112" width="176" height="8" fill="#9b6a43"/><circle cx="200" cy="100" r="7" fill="#f2b705"/>
+  <g fill="#f1e4d0"><% [124,150,176,202,228,254].forEach(x => { %><rect x="<%= x %>" y="120" width="12" height="46"/><% }) %></g>
+  <rect x="104" y="166" width="192" height="5" fill="#9b6a43"/><rect x="98" y="171" width="204" height="5" fill="#7a4e2d"/>
+<% break; case 'TF': %>
+  <path d="M95 112 Q200 120 305 112 Q285 104 270 90 L130 90 Q115 104 95 112Z" fill="#8c1d22"/>
+  <path d="M135 90 Q200 96 265 90 Q250 80 240 66 L160 66 Q150 80 135 90Z" fill="#a3262a"/><rect x="190" y="58" width="20" height="8" fill="#f2b705"/>
+  <rect x="120" y="112" width="160" height="58" fill="#f3e3c3"/>
+  <g fill="#a3262a"><% [128,168,228,268].forEach(x => { %><rect x="<%= x %>" y="112" width="7" height="58"/><% }) %></g>
+  <rect x="188" y="136" width="24" height="34" fill="#5a1214"/>
+  <g class="sway"><line x1="150" y1="114" x2="150" y2="124" stroke="#5a1214"/><circle cx="150" cy="130" r="6" fill="#e03a3e"/></g>
+  <g class="sway s2"><line x1="250" y1="114" x2="250" y2="124" stroke="#5a1214"/><circle cx="250" cy="130" r="6" fill="#e03a3e"/></g>
+<% break; case 'RW': %>
+  <g fill="#1f5a2c"><path d="M30 170 L55 100 L80 170Z"/><path d="M300 170 L330 96 L360 170Z"/></g><g fill="#2a7238"><path d="M60 170 L90 112 L120 170Z"/><path d="M340 170 L365 118 L390 170Z"/></g>
+  <ellipse cx="200" cy="140" rx="38" ry="24" fill="#6d7a74"/><circle cx="244" cy="130" r="16" fill="#6d7a74"/>
+  <path d="M255 134 q12 12 6 30" stroke="#6d7a74" stroke-width="7" fill="none" stroke-linecap="round"/>
+  <ellipse cx="236" cy="132" rx="8" ry="11" fill="#5b6862"/><circle cx="249" cy="126" r="1.8" fill="#16231f"/>
+  <g fill="#6d7a74"><rect x="170" y="156" width="9" height="14"/><rect x="186" y="156" width="9" height="14"/><rect x="212" y="156" width="9" height="14"/><rect x="228" y="156" width="9" height="14"/></g>
+  <path d="M252 140 q10 -2 14 4" stroke="#fff" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+<% break; case 'DT': %>
+  <path d="M0 150 L70 90 L120 130 L190 70 L260 128 L320 96 L400 140 L400 170 L0 170Z" fill="#2d6a5f"/>
+  <path d="M0 160 L90 118 L170 150 L250 112 L340 150 L400 130 L400 170 L0 170Z" fill="#1b4d44"/>
+  <rect x="0" y="150" width="400" height="50" fill="#1d6fa5"/>
+  <g class="wavewrap"><path class="wave" d="M-80 162 q20 -6 40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0 V200 H-80Z" fill="#fff" opacity=".28"/></g>
+  <g class="bob"><path d="M170 160 h40 l-6 8 h-28z" fill="#7a4e2d"/><path d="M190 158 V128 L210 158Z" fill="#fff7da"/><rect x="189" y="126" width="2" height="34" fill="#5a3a20"/></g>
+<% break; default: %>
+  <path d="M0 160 Q100 110 200 150 T400 140 V200 H0Z" fill="#1b4d44"/><path d="M0 175 Q120 140 250 168 T400 160 V200 H0Z" fill="#12362f"/>
+<% } %>

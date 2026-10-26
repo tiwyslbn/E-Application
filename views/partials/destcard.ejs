@@ -1,0 +1,20 @@
+<% const pct = Math.max(0, Math.min(100, Math.round(d.remaining * 100 / d.daily_quota))); const low = pct < 20; %>
+<article class="dcard">
+  <a href="/wisata/<%= d.id %>" class="dcard-cover" aria-label="<%= d.name %>">
+    <%- include('scene', { d }) %>
+    <span class="chip-cat"><%= d.category %></span>
+    <span class="chip-quota <%= low ? 'low' : '' %>"><%= low ? 'Hampir penuh' : 'Tersedia' %></span>
+    <div class="dcard-grad"></div>
+    <h5 class="dcard-title"><%= d.name %></h5>
+  </a>
+  <div class="dcard-body">
+    <div class="meta-row mb-1"><i class="bi bi-clock"></i><span><%= d.open_time %> - <%= d.close_time %> WIB</span></div>
+    <div class="meta-row"><i class="bi bi-geo-alt"></i><span><%= d.address.split(',')[0] %></span></div>
+    <div class="quota-bar <%= low ? 'low' : '' %>" title="Sisa kuota hari ini: <%= d.remaining %>"><span style="width: <%= pct %>%"></span></div>
+    <div class="small text-muted">Sisa kuota hari ini: <strong><%= d.remaining %></strong> dari <%= d.daily_quota %></div>
+  </div>
+  <div class="dcard-foot">
+    <div><div class="from">Mulai dari</div><div class="price"><%= U.rupiah(Math.min(d.price_adult, d.price_child || d.price_adult)) %></div></div>
+    <a href="/wisata/<%= d.id %>" class="btn btn-gold btn-sm px-3">Pesan tiket</a>
+  </div>
+</article>

@@ -1,0 +1,76 @@
+digraph ERD {
+  graph [rankdir=LR, splines=true, nodesep=0.55, ranksep=1.3, bgcolor=white, pad=0.3, fontname="Helvetica"];
+  node  [shape=plain, fontname="Helvetica", fontsize=11];
+  edge  [fontname="Helvetica", fontsize=10, color="#4a5a55", dir=both, arrowsize=1.0, penwidth=1.3];
+
+  users [label=<<table border="0" cellborder="1" cellspacing="0" cellpadding="4">
+    <tr><td bgcolor="#0f5c4d" colspan="2"><font color="white"><b>users</b></font></td></tr>
+    <tr><td align="left" port="id"><b>PK</b></td><td align="left"><b>id</b> INTEGER</td></tr>
+    <tr><td></td><td align="left">name TEXT</td></tr>
+    <tr><td></td><td align="left">email TEXT (unique)</td></tr>
+    <tr><td></td><td align="left">phone TEXT</td></tr>
+    <tr><td></td><td align="left">password TEXT (bcrypt)</td></tr>
+    <tr><td></td><td align="left">role (admin|petugas|user)</td></tr>
+    <tr><td></td><td align="left">created_at TEXT</td></tr></table>>];
+
+  destinations [label=<<table border="0" cellborder="1" cellspacing="0" cellpadding="4">
+    <tr><td bgcolor="#c98a00" colspan="2"><font color="white"><b>destinations</b></font></td></tr>
+    <tr><td align="left"><b>PK</b></td><td align="left"><b>id</b> INTEGER</td></tr>
+    <tr><td></td><td align="left">code TEXT (unique)</td></tr>
+    <tr><td></td><td align="left">name, category, description</td></tr>
+    <tr><td></td><td align="left">address TEXT</td></tr>
+    <tr><td></td><td align="left">open_time, close_time</td></tr>
+    <tr><td></td><td align="left">slot_hours INTEGER</td></tr>
+    <tr><td></td><td align="left">price_adult, price_child</td></tr>
+    <tr><td></td><td align="left">daily_quota INTEGER</td></tr>
+    <tr><td></td><td align="left">icon, color, is_active</td></tr></table>>];
+
+  bookings [label=<<table border="0" cellborder="1" cellspacing="0" cellpadding="4">
+    <tr><td bgcolor="#1d6fa5" colspan="2"><font color="white"><b>bookings</b></font></td></tr>
+    <tr><td align="left"><b>PK</b></td><td align="left"><b>id</b> INTEGER</td></tr>
+    <tr><td align="left">FK</td><td align="left">user_id → users.id</td></tr>
+    <tr><td align="left">FK</td><td align="left">destination_id → destinations.id</td></tr>
+    <tr><td></td><td align="left">code TEXT (unique)</td></tr>
+    <tr><td></td><td align="left">visit_date, visit_slot</td></tr>
+    <tr><td></td><td align="left">qty_adult, qty_child</td></tr>
+    <tr><td></td><td align="left">total INTEGER</td></tr>
+    <tr><td></td><td align="left">status (pending|paid|cancelled|expired)</td></tr>
+    <tr><td></td><td align="left">expires_at, created_at</td></tr></table>>];
+
+  payments [label=<<table border="0" cellborder="1" cellspacing="0" cellpadding="4">
+    <tr><td bgcolor="#3f6f2a" colspan="2"><font color="white"><b>payments</b></font></td></tr>
+    <tr><td align="left"><b>PK</b></td><td align="left"><b>id</b> INTEGER</td></tr>
+    <tr><td align="left">FK</td><td align="left">booking_id → bookings.id (unique)</td></tr>
+    <tr><td></td><td align="left">method TEXT</td></tr>
+    <tr><td></td><td align="left">amount INTEGER</td></tr>
+    <tr><td></td><td align="left">reference TEXT</td></tr>
+    <tr><td></td><td align="left">status (pending|success|failed)</td></tr>
+    <tr><td></td><td align="left">paid_at, created_at</td></tr></table>>];
+
+  tickets [label=<<table border="0" cellborder="1" cellspacing="0" cellpadding="4">
+    <tr><td bgcolor="#a3262a" colspan="2"><font color="white"><b>tickets</b></font></td></tr>
+    <tr><td align="left"><b>PK</b></td><td align="left"><b>id</b> INTEGER</td></tr>
+    <tr><td align="left">FK</td><td align="left">booking_id → bookings.id (unique)</td></tr>
+    <tr><td align="left">FK</td><td align="left">checked_by → users.id</td></tr>
+    <tr><td></td><td align="left">ticket_code TEXT (unique, isi QR)</td></tr>
+    <tr><td></td><td align="left">status (valid|used)</td></tr>
+    <tr><td></td><td align="left">checkin_at, created_at</td></tr></table>>];
+
+  queues [label=<<table border="0" cellborder="1" cellspacing="0" cellpadding="4">
+    <tr><td bgcolor="#7a4e2d" colspan="2"><font color="white"><b>queues</b></font></td></tr>
+    <tr><td align="left"><b>PK</b></td><td align="left"><b>id</b> INTEGER</td></tr>
+    <tr><td align="left">FK</td><td align="left">booking_id → bookings.id (unique)</td></tr>
+    <tr><td align="left">FK</td><td align="left">destination_id → destinations.id</td></tr>
+    <tr><td></td><td align="left">queue_date TEXT</td></tr>
+    <tr><td></td><td align="left">queue_number INTEGER</td></tr>
+    <tr><td></td><td align="left">status (waiting|called|done|skipped)</td></tr>
+    <tr><td></td><td align="left">called_at TEXT</td></tr></table>>];
+
+  users -> bookings        [arrowtail=tee, arrowhead=crow, label=" memesan"];
+  destinations -> bookings [arrowtail=tee, arrowhead=crow, label=" dipesan"];
+  bookings -> payments     [arrowtail=tee, arrowhead=tee,  label=" dibayar"];
+  bookings -> tickets      [arrowtail=tee, arrowhead=tee,  label=" menerbitkan"];
+  bookings -> queues       [arrowtail=tee, arrowhead=tee,  label=" mendapat"];
+  destinations -> queues   [arrowtail=tee, arrowhead=crow, label=" memiliki antrian"];
+  users -> tickets         [arrowtail=tee, arrowhead=crow, label=" check-in oleh (petugas)", style=dashed];
+}

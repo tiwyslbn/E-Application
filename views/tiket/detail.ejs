@@ -1,0 +1,55 @@
+<%- include('../partials/header') %>
+<div class="container py-4">
+  <div class="eticket">
+    <div class="top" style="background: linear-gradient(135deg, <%= b.color %>, #0e1f1a 170%);">
+      <div><div class="small opacity-75">E-Tiket wisata</div><h4 class="mb-0"><%= b.dest_name %></h4></div>
+      <i class="bi <%= b.icon %>" style="font-size:2.4rem"></i>
+    </div>
+    <div class="body">
+      <div class="info">
+        <div class="row">
+          <div class="col-6"><p class="lbl">Kode pesanan</p><p class="val font-monospace"><%= b.code %></p></div>
+          <div class="col-6"><p class="lbl">Status</p><p class="val"><span class="status-pill pill-<%= t && t.status === 'used' ? 'used' : 'paid' %>"><%= t && t.status === 'used' ? 'Sudah dipakai' : 'Berlaku' %></span></p></div>
+          <div class="col-6"><p class="lbl">Tanggal kunjungan</p><p class="val"><%= U.tanggal(b.visit_date) %></p></div>
+          <div class="col-6"><p class="lbl">Sesi</p><p class="val"><%= b.visit_slot %> WIB</p></div>
+          <div class="col-6"><p class="lbl">Pengunjung</p><p class="val"><%= b.qty_adult %> dewasa<%= b.qty_child ? ', ' + b.qty_child + ' anak' : '' %></p></div>
+          <div class="col-6"><p class="lbl">Dibayar</p><p class="val"><%= U.rupiah(b.total) %> <small class="text-muted fw-normal">(<%= pay ? pay.method : '-' %>)</small></p></div>
+        </div>
+        <div class="queue-box">
+          <p class="lbl">Nomor antrian</p>
+          <div class="queue-big"><%= queueLabel || '-' %></div>
+          <div class="small mt-1" id="queueLive" data-code="<%= b.code %>"><span class="text-muted">Memuat status antrian...</span></div>
+        </div>
+      </div>
+      <div class="stub">
+        <p class="lbl mb-2">Tunjukkan QR kepada petugas</p>
+        <% if (qr) { %><img src="<%= qr %>" alt="QR Code Tiket" width="220" height="220"><% } %>
+        <div class="font-monospace small mt-2"><%= t ? t.ticket_code : '' %></div>
+        <% if (t && t.status === 'used') { %><div class="small text-muted mt-2">Check-in: <%= t.checkin_at %></div><% } %>
+      </div>
+    </div>
+  </div>
+  <div class="text-center mt-4 no-print">
+    <button class="btn btn-green me-2" onclick="window.print()"><i class="bi bi-printer me-1"></i>Cetak E-Tiket</button>
+    <a href="/tiket" class="btn btn-outline-green">Kembali</a>
+  </div>
+</div>
+<script>
+(function () {
+  var el = document.getElementById('queueLive'); if (!el) return;
+  function load() {
+    fetch('/api/antrian/saya/' + el.dataset.code).then(function (r) { return r.json(); }).then(function (j) {
+      if (!j.ok || !j.hasQueue) { el.textContent = ''; return; }
+      var html;
+      if (j.status === 'done') html = '<span class="status-pill pill-done">Selesai dilayani</span>';
+      else if (j.status === 'skipped') html = '<span class="status-pill pill-skipped">Antrian dilewati</span>';
+      else if (j.status === 'called') html = '<span class="status-pill pill-called">Nomor Anda sedang dipanggil, segera ke loket!</span>';
+      else if (!j.isToday) html = '<span class="text-muted">Antrian aktif pada hari kunjungan.</span>';
+      else html = 'Sedang dilayani: <strong>' + (j.serving || '-') + '</strong> &middot; Di depan Anda: <strong>' + j.ahead + '</strong> antrian';
+      el.innerHTML = html;
+    }).catch(function () {});
+  }
+  load(); setInterval(load, 8000);
+})();
+</script>
+<%- include('../partials/footer') %>

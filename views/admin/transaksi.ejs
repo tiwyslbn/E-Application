@@ -1,0 +1,30 @@
+<%- include('../partials/header') %>
+<% const keep = (o) => { const p = new URLSearchParams(); const m = Object.assign({}, { q: q.q, dest: q.dest, from: q.from, to: q.to }, o); Object.keys(m).forEach(k => { if (m[k]) p.set(k, m[k]); }); const s = p.toString(); return '/admin/transaksi' + (s ? '?' + s : ''); };
+   const all = Object.values(counts).reduce((a, b) => a + b, 0); %>
+<div class="container py-4">
+  <div class="page-head">
+    <div class="ph-ico"><i class="bi bi-receipt"></i></div>
+    <div class="ph-t"><h1>Data transaksi</h1><p>Cari pesanan, lihat detail, dan ubah status (lunas, batal, aktifkan kembali).</p></div>
+  </div>
+  <div class="tabs-lite">
+    <a href="<%= keep({ status: '' }) %>" class="<%= !q.status ? 'on' : '' %>">Semua <b><%= all %></b></a>
+    <% [['pending','Menunggu'],['paid','Lunas'],['cancelled','Dibatalkan'],['expired','Kedaluwarsa']].forEach(t => { %><a href="<%= keep({ status: t[0] }) %>" class="<%= q.status === t[0] ? 'on' : '' %>"><%= t[1] %> <b><%= counts[t[0]] || 0 %></b></a><% }) %>
+  </div>
+  <form method="get" class="panel mb-4"><% if (q.status) { %><input type="hidden" name="status" value="<%= q.status %>"><% } %><div class="row g-2 align-items-end">
+    <div class="col-md-4"><label class="form-label small text-muted" for="f-q">Cari</label><input id="f-q" name="q" class="form-control" value="<%= q.q || '' %>" placeholder="Kode pesanan, nama, email, no. HP"></div>
+    <div class="col-md-3"><label class="form-label small text-muted" for="f-dest">Destinasi</label><select id="f-dest" name="dest" class="form-select"><option value="">Semua</option><% dests.forEach(d => { %><option value="<%= d.id %>" <%= String(q.dest) === String(d.id) ? 'selected' : '' %>><%= d.name %></option><% }) %></select></div>
+    <div class="col-md-2"><label class="form-label small text-muted" for="f-from">Dari</label><input id="f-from" type="date" name="from" class="form-control" value="<%= q.from || '' %>"></div>
+    <div class="col-md-2"><label class="form-label small text-muted" for="f-to">Sampai</label><input id="f-to" type="date" name="to" class="form-control" value="<%= q.to || '' %>"></div>
+    <div class="col-md-1 d-grid"><button class="btn btn-green" aria-label="Cari"><i class="bi bi-search"></i></button></div>
+  </div></form>
+  <div class="panel p-0 overflow-hidden"><div class="table-responsive"><table class="table table-hover align-middle mb-0">
+    <thead><tr><th>Kode</th><th>Pengunjung</th><th>Destinasi</th><th>Kunjungan</th><th class="text-end">Orang</th><th class="text-end">Total</th><th>Metode</th><th>Status</th><th></th></tr></thead>
+    <tbody><% rows.forEach(r => { %><tr><td class="font-monospace small text-nowrap"><a href="/admin/transaksi/<%= r.code %>"><%= r.code %></a></td><td><%= r.visitor %></td><td class="small"><%= r.dest_name %></td><td class="small"><%= U.tanggalPendek(r.visit_date) %><br><span class="text-muted"><%= r.visit_slot %></span></td>
+      <td class="text-end"><%= r.qty_adult + r.qty_child %></td><td class="text-end text-nowrap"><%= U.rupiah(r.total) %></td><td class="small"><%= r.method || '-' %></td>
+      <td><span class="status-pill pill-<%= r.status %>"><%= {pending:'Menunggu', paid:'Lunas', cancelled:'Batal', expired:'Kedaluwarsa'}[r.status] %></span></td>
+      <td class="text-end"><a class="btn btn-sm btn-outline-green" href="/admin/transaksi/<%= r.code %>">Kelola</a></td></tr><% }) %>
+    <% if (!rows.length) { %><tr><td colspan="9" class="text-center text-muted py-4">Tidak ada data yang cocok.</td></tr><% } %></tbody>
+  </table></div></div>
+  <div class="small text-muted mt-2">Menampilkan maksimal 200 transaksi terbaru.</div>
+</div>
+<%- include('../partials/footer') %>

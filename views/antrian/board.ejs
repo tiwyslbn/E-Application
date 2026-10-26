@@ -1,0 +1,32 @@
+<%- include('../partials/header') %>
+<div class="container py-4">
+  <div class="page-head">
+    <div class="ph-ico"><i class="bi bi-display"></i></div>
+    <div class="ph-t"><h1>Papan antrian hari ini</h1><p><%= U.tanggal(today) %> &middot; diperbarui otomatis <span id="upd"></span></p></div>
+  </div>
+  <div class="row g-3" id="boardRow">
+    <% rows.forEach(r => { %>
+      <div class="col-md-6 col-lg-4"><div class="board-card <%= hasPhoto(r.code) ? '' : 'nophoto' %>" style="--c: <%= r.color %>;">
+        <% if (hasPhoto(r.code)) { %><img class="bc-photo" src="<%= photoUrl(r.code) %>" alt="" loading="lazy"><% } %>
+        <div class="d-flex justify-content-between"><strong><%= r.name %></strong><i class="bi <%= r.icon %> fs-4"></i></div>
+        <small>Sedang dilayani</small>
+        <div class="now"><%= r.serving || '---' %></div>
+        <div class="mt-2 small"><%= r.waiting %> menunggu &middot; total <%= r.total %> antrian</div>
+      </div></div>
+    <% }) %>
+  </div>
+</div>
+<script>
+setInterval(function () {
+  fetch('/api/antrian').then(function (r) { return r.json(); }).then(function (j) {
+    var cols = document.querySelectorAll('#boardRow .board-card');
+    j.rows.forEach(function (r, i) {
+      if (!cols[i]) return;
+      cols[i].querySelector('.now').textContent = r.serving || '---';
+      cols[i].querySelector('.mt-2').textContent = r.waiting + ' menunggu · total ' + r.total + ' antrian';
+    });
+    document.getElementById('upd').textContent = '(' + new Date().toLocaleTimeString('id-ID') + ')';
+  }).catch(function () {});
+}, 5000);
+</script>
+<%- include('../partials/footer') %>

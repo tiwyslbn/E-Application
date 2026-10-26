@@ -1,0 +1,29 @@
+<%- include('../partials/header') %>
+<div class="container py-4">
+  <section class="welcome">
+    <div class="w-row">
+      <div><h1>Halo, <%= currentUser.name.split(' ')[0] %></h1><p><%= U.tanggal(today) %> &middot; kondisi loket hari ini</p></div>
+      <div class="w-act">
+        <a href="/petugas/scan" class="btn btn-gold"><i class="bi bi-qr-code-scan me-1"></i>Scan check-in</a>
+        <a href="/petugas/pesanan" class="btn btn-ghost"><i class="bi bi-ticket-detailed me-1"></i>Pesanan</a>
+        <a href="/petugas/antrian" class="btn btn-ghost"><i class="bi bi-hourglass-split me-1"></i>Kelola antrian</a>
+      </div>
+    </div>
+    <div class="rebung"></div>
+  </section>
+  <% if (pendingCount > 0) { %><div class="alert-attn"><i class="bi bi-hourglass-split"></i><div class="flex-fill"><b><%= pendingCount %> pesanan menunggu pembayaran.</b> Bantu pengunjung yang membayar tunai di loket.</div><a class="btn btn-sm btn-gold" href="/petugas/pesanan?f=pending">Tinjau</a></div><% } %>
+  <div class="row g-3 mb-4">
+    <% rows.forEach(r => { %><div class="col-md-6 col-xl-4"><div class="ord mb-0" style="grid-template-columns:auto 1fr">
+      <% if (hasPhoto(r.code)) { %><img class="thumb" src="<%= photoUrl(r.code) %>" alt="" loading="lazy"><% } else { %><div class="tk-ico" style="background:<%= r.color %>;width:56px;height:56px"><i class="bi <%= r.icon %>"></i></div><% } %>
+      <div><div class="fw-bold"><%= r.name %></div>
+        <div class="d-flex gap-3 mt-1 small"><span><b class="fs-6"><%= r.sold %></b> <span class="text-muted">terjual</span></span><span><b class="fs-6"><%= r.inside %></b> <span class="text-muted">masuk</span></span><span><b class="fs-6"><%= r.waiting %></b> <span class="text-muted">antri</span></span></div></div>
+    </div></div><% }) %>
+  </div>
+  <h5 class="mb-3">Check-in terakhir hari ini</h5>
+  <div class="panel p-0 overflow-hidden"><div class="table-responsive"><table class="table table-hover mb-0">
+    <thead><tr><th>Jam</th><th>Pengunjung</th><th>Destinasi</th><th class="text-end">Orang</th></tr></thead>
+    <tbody><% recent.forEach(r => { %><tr><td><%= U.jam(r.checkin_at) %></td><td><%= r.visitor %></td><td><%= r.dest_name %></td><td class="text-end"><%= r.persons %></td></tr><% }) %>
+    <% if (!recent.length) { %><tr><td colspan="4" class="text-center text-muted py-3">Belum ada check-in hari ini.</td></tr><% } %></tbody>
+  </table></div></div>
+</div>
+<%- include('../partials/footer') %>

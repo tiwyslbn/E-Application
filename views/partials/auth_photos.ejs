@@ -1,0 +1,2 @@
+<% const apCodes = ['IM', 'MR', 'TF', 'DT', 'MN', 'RW'].filter(hasPhoto); %>
+<div class="auth-photos" aria-hidden="true"><% apCodes.forEach((c, i) => { %><img src="<%= photoUrl(c) %>" alt="" <%- i === 0 ? '' : 'loading="lazy"' %> style="animation-delay: <%= i * 6 %>s; animation-duration: <%= apCodes.length * 6 %>s"><% }) %></div>

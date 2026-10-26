@@ -1,0 +1,17 @@
+<%- include('../partials/header') %>
+<div class="container py-4" style="max-width:620px">
+  <div class="page-head"><div class="ph-ico"><i class="bi bi-person-gear"></i></div><div class="ph-t"><h1><%= title %></h1><p>Atur nama, kontak, peran, dan password akun.</p></div></div>
+  <% if (errors.length) { %><div class="alert alert-danger"><ul class="mb-0 ps-3"><% errors.forEach(e => { %><li><%= e %></li><% }) %></ul></div><% } %>
+  <form method="post" action="<%= editId ? '/admin/pengguna/' + editId : '/admin/pengguna' %>" class="panel" novalidate>
+    <%- csrfField %>
+    <div class="mb-3"><label class="form-label" for="f-name">Nama</label><input id="f-name" name="name" class="form-control" value="<%= f.name || '' %>" required></div>
+    <div class="mb-3"><label class="form-label" for="f-email">Email</label><input id="f-email" type="email" name="email" class="form-control" value="<%= f.email || '' %>" required></div>
+    <div class="mb-3"><label class="form-label" for="f-phone">No. HP</label><input id="f-phone" name="phone" class="form-control" value="<%= f.phone || '' %>"></div>
+    <div class="row g-3 mb-3">
+      <div class="col-6"><label class="form-label" for="f-role">Peran</label><select id="f-role" name="role" class="form-select"><% ['admin','petugas','user'].forEach(r => { %><option value="<%= r %>" <%= f.role === r ? 'selected' : '' %>><%= r %></option><% }) %></select></div>
+      <div class="col-6"><label class="form-label">Password <%= editId ? '(kosongkan jika tidak diubah)' : '' %></label><input type="password" name="password" class="form-control" <%= editId ? '' : 'required' %>></div>
+    </div>
+    <div class="d-flex gap-2"><button class="btn btn-green px-4">Simpan</button><a href="/admin/pengguna" class="btn btn-outline-secondary">Batal</a></div>
+  </form>
+</div>
+<%- include('../partials/footer') %>

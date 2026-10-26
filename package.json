@@ -1,0 +1,28 @@
+{
+  "name": "medan-smart-tourism",
+  "version": "1.0.0",
+  "description": "E-Ticketing & E-Queue Wisata Kota Medan (Medan Smart Tourism) - Project UTS E-Application",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "seed": "node db.js --reset",
+    "test": "node tests/blackbox.js"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "better-sqlite3": "^13.0.3",
+    "bootstrap": "^5.3.8",
+    "bootstrap-icons": "^1.13.2",
+    "chart.js": "^4.5.1",
+    "ejs": "^7.0.1",
+    "express": "^5.2.1",
+    "express-session": "^1.19.0",
+    "html5-qrcode": "^2.3.8",
+    "multer": "^2.4.0",
+    "qrcode": "^1.5.4"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}

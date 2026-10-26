@@ -1,0 +1,33 @@
+{
+  "id": "/",
+  "name": "Medan Smart Tourism",
+  "short_name": "MedanTour",
+  "description": "E-ticketing dan e-queue wisata Kota Medan: pesan tiket, bayar online, nomor antrian digital, check-in dengan QR.",
+  "lang": "id",
+  "dir": "ltr",
+  "start_url": "/?source=pwa",
+  "scope": "/",
+  "display": "standalone",
+  "display_override": ["standalone", "minimal-ui"],
+  "background_color": "#06231e",
+  "theme_color": "#06231e",
+  "categories": ["travel", "lifestyle"],
+  "icons": [
+    { "src": "/img/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/img/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/img/icon-maskable-192.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
+    { "src": "/img/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" },
+    { "src": "/img/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ],
+  "shortcuts": [
+    { "name": "Destinasi wisata", "short_name": "Wisata", "url": "/wisata", "icons": [{ "src": "/img/shortcut-96.png", "sizes": "96x96", "type": "image/png" }] },
+    { "name": "Tiket saya", "short_name": "Tiket", "url": "/tiket", "icons": [{ "src": "/img/shortcut-96.png", "sizes": "96x96", "type": "image/png" }] },
+    { "name": "Papan antrian", "short_name": "Antrian", "url": "/antrian", "icons": [{ "src": "/img/shortcut-96.png", "sizes": "96x96", "type": "image/png" }] }
+  ],
+  "screenshots": [
+    { "src": "/img/shot-wide-1.png", "sizes": "1280x720", "type": "image/png", "form_factor": "wide", "label": "Beranda" },
+    { "src": "/img/shot-wide-2.png", "sizes": "1280x720", "type": "image/png", "form_factor": "wide", "label": "Daftar destinasi" },
+    { "src": "/img/shot-narrow-1.png", "sizes": "540x960", "type": "image/png", "form_factor": "narrow", "label": "Beranda di ponsel" },
+    { "src": "/img/shot-narrow-2.png", "sizes": "540x960", "type": "image/png", "form_factor": "narrow", "label": "E-tiket" }
+  ]
+}

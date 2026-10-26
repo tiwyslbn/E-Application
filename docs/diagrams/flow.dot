@@ -1,0 +1,38 @@
+digraph F {
+  graph [rankdir=TB, bgcolor=white, nodesep=0.45, ranksep=0.42, pad=0.3, fontname="Helvetica"];
+  node  [fontname="Helvetica", fontsize=11, style="filled", fillcolor="#fff7da", color="#0f5c4d", penwidth=1.5, margin="0.18,0.1"];
+  edge  [fontname="Helvetica", fontsize=10, color="#4a5a55", penwidth=1.3];
+
+  s   [label="MULAI", shape=box, style="rounded,filled", fillcolor="#0f5c4d", fontcolor=white];
+  p1  [label="Wisatawan login & memilih destinasi wisata", shape=box];
+  p2  [label="Mengisi tanggal kunjungan, sesi,\njumlah tiket dewasa & anak", shape=parallelogram];
+  d1  [label="Validasi: tanggal valid, maks. 10 tiket,\nada dewasa, kuota mencukupi?", shape=diamond, fillcolor="#e3f1ff"];
+  e1  [label="Tampilkan pesan kesalahan", shape=box, fillcolor="#fde8e8"];
+  p3  [label="Sistem membuat pesanan (status: pending)\nbatas bayar 30 menit, hitung total", shape=box];
+  p4  [label="Memilih metode pembayaran\n(QRIS / VA / e-wallet)", shape=parallelogram];
+  p5  [label="Menampilkan instruksi di\nPayment Gateway (Sandbox)", shape=box];
+  d2  [label="Dibayar sebelum\nbatas waktu?", shape=diamond, fillcolor="#e3f1ff"];
+  e2  [label="Status pesanan: expired /\ncancelled (kuota dilepas)", shape=box, fillcolor="#fde8e8"];
+  p6  [label="Pembayaran sukses: status pesanan = paid", shape=box];
+  p7  [label="Sistem menerbitkan e-tiket (QR Code)\n& nomor antrian per destinasi/hari", shape=box, fillcolor="#d9f2e6"];
+  p8  [label="Pada hari kunjungan: petugas memindai\nQR Code e-tiket", shape=parallelogram];
+  d3  [label="Tiket ditemukan, lunas, tanggal\nsesuai & belum dipakai?", shape=diamond, fillcolor="#e3f1ff"];
+  e3  [label="Check-in ditolak\n(tampilkan alasan)", shape=box, fillcolor="#fde8e8"];
+  p9  [label="Check-in berhasil: tiket = used,\nantrian = done, data kunjungan tercatat", shape=box, fillcolor="#d9f2e6"];
+  p10 [label="Data masuk ke dashboard &\nlaporan kunjungan admin", shape=box];
+  t   [label="SELESAI", shape=box, style="rounded,filled", fillcolor="#0f5c4d", fontcolor=white];
+
+  s -> p1 -> p2 -> d1;
+  d1 -> e1 [label=" Tidak"]; e1 -> p2 [constraint=false, style=dashed];
+  d1 -> p3 [label=" Ya"];
+  p3 -> p4 -> p5 -> d2;
+  d2 -> e2 [label=" Tidak"]; e2 -> t;
+  d2 -> p6 [label=" Ya"];
+  p6 -> p7 -> p8 -> d3;
+  d3 -> e3 [label=" Tidak"]; e3 -> t;
+  d3 -> p9 [label=" Ya"];
+  p9 -> p10 -> t;
+  {rank=same; d1; e1}
+  {rank=same; d2; e2}
+  {rank=same; d3; e3}
+}

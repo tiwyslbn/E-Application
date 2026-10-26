@@ -1,0 +1,22 @@
+<%- include('../partials/header') %>
+<section class="page-hero"><div class="container"><h1>Destinasi wisata Kota Medan</h1><p>Sejarah, budaya, religi, dan alam. Temukan tujuan kunjunganmu.</p></div><div class="hero-edge"></div></section>
+<div class="container py-4">
+  <form class="panel mb-3" method="get" action="/wisata">
+    <div class="row g-2 align-items-end">
+      <div class="col-md-6"><label class="form-label" for="f-q">Cari destinasi</label><input id="f-q" class="form-control" name="q" value="<%= q %>" placeholder="mis. Istana Maimun"></div>
+      <div class="col-md-4"><label class="form-label" for="f-kategori">Kategori</label>
+        <select id="f-kategori" class="form-select" name="kategori"><option value="">Semua kategori</option>
+          <% categories.forEach(c => { %><option <%= c === kategori ? 'selected' : '' %>><%= c %></option><% }) %></select></div>
+      <div class="col-md-2 d-grid"><button class="btn btn-green"><i class="bi bi-search me-1"></i>Cari</button></div>
+    </div>
+  </form>
+  <div class="cat-chips" aria-label="Filter cepat kategori">
+    <a href="/wisata<%= q ? '?q=' + encodeURIComponent(q) : '' %>" class="<%= !kategori ? 'on' : '' %>">Semua</a>
+    <% categories.forEach(c => { %><a href="/wisata?kategori=<%= encodeURIComponent(c) %><%= q ? '&q=' + encodeURIComponent(q) : '' %>" class="<%= c === kategori ? 'on' : '' %>"><%= c %></a><% }) %>
+  </div>
+  <div class="row g-4 mt-0">
+    <% destinations.forEach(d => { %><div class="col-md-6 col-lg-4"><%- include('../partials/destcard', {d}) %></div><% }) %>
+    <% if (!destinations.length) { %><div class="col-12"><div class="panel text-center text-muted">Tidak ada destinasi yang cocok. Coba kata kunci lain atau pilih <a href="/wisata">semua kategori</a>.</div></div><% } %>
+  </div>
+</div>
+<%- include('../partials/footer') %>

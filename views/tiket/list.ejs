@@ -1,0 +1,21 @@
+<%- include('../partials/header') %>
+<div class="container py-4" style="max-width:860px">
+  <h3 class="section-title mb-4">Tiket saya</h3>
+  <% rows.forEach(r => { const st = r.status === 'paid' && r.ticket_status === 'used' ? 'used' : r.status; %>
+    <div class="tk">
+      <% if (hasPhoto(r.dest_code)) { %><img class="thumb" src="<%= photoUrl(r.dest_code) %>" alt="" loading="lazy"><% } else { %><div class="tk-ico" style="background:<%= r.color %>"><i class="bi <%= r.icon %>"></i></div><% } %>
+      <div>
+        <div class="tk-name"><%= r.dest_name %></div>
+        <div class="tk-meta"><%= U.tanggalPendek(r.visit_date) %> &middot; <%= r.visit_slot %> &middot; <%= r.qty_adult + r.qty_child %> tiket</div>
+        <div class="tk-meta"><span class="font-monospace"><%= r.code %></span><%= r.queue_number ? ' · Antrian ' + B.queueLabel(r.dest_code, r.queue_number) : '' %></div>
+      </div>
+      <div class="tk-side">
+        <span class="status-pill pill-<%= st %>"><%= {pending:'Menunggu bayar', paid:'Lunas', used:'Sudah dipakai', cancelled:'Dibatalkan', expired:'Kedaluwarsa'}[st] %></span>
+        <div class="tk-total"><%= U.rupiah(r.total) %></div>
+        <% if (r.status === 'pending') { %><a class="btn btn-sm btn-gold" href="/bayar/<%= r.code %>">Bayar</a><% } else if (r.status === 'paid') { %><a class="btn btn-sm btn-outline-green" href="/tiket/<%= r.code %>">Buka e-tiket</a><% } %>
+      </div>
+    </div>
+  <% }) %>
+  <% if (!rows.length) { %><div class="panel text-center text-muted py-5">Belum ada pesanan. <a href="/wisata">Pesan tiket sekarang</a>.</div><% } %>
+</div>
+<%- include('../partials/footer') %>

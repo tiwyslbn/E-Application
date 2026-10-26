@@ -1,0 +1,20 @@
+<%- include('../partials/header') %>
+<div class="container py-4">
+  <div class="page-head">
+    <div class="ph-ico"><i class="bi bi-geo-alt"></i></div>
+    <div class="ph-t"><h1>Kelola destinasi</h1><p><%= rows.length %> destinasi &middot; atur harga, kuota, jam buka, dan foto.</p></div>
+    <div class="ph-act"><a href="/admin/wisata/baru" class="btn btn-gold"><i class="bi bi-plus-lg me-1"></i>Tambah destinasi</a></div>
+  </div>
+  <div class="row g-4">
+    <% rows.forEach(r => { %><div class="col-md-6 col-xl-4"><article class="da">
+      <div class="da-cover"><%- include('../partials/scene', { d: r }) %><span class="chip-cat"><%= r.category %></span><span class="st status-pill <%= r.is_active ? 'pill-paid' : 'pill-cancelled' %>"><%= r.is_active ? 'Aktif' : 'Nonaktif' %></span></div>
+      <div class="da-body">
+        <h6><%= r.name %></h6><div class="da-code"><%= r.code %> &middot; <%= r.open_time %>-<%= r.close_time %> WIB</div>
+        <div class="da-stats"><div><%= U.rupiah(r.price_adult) %><small>Dewasa</small></div><div><%= U.rupiah(r.price_child) %><small>Anak</small></div><div><%= r.daily_quota %><small>Kuota/hari</small></div></div>
+      </div>
+      <div class="da-foot"><a class="btn btn-sm btn-outline-green" href="/admin/wisata/<%= r.id %>/edit"><i class="bi bi-pencil me-1"></i>Ubah</a>
+        <form method="post" action="/admin/wisata/<%= r.id %>/hapus" class="flex-fill d-flex" onsubmit="return confirm('Hapus destinasi ini?')"><%- csrfField %><button class="btn btn-sm btn-outline-danger flex-fill"><i class="bi bi-trash me-1"></i>Hapus</button></form></div>
+    </article></div><% }) %>
+  </div>
+</div>
+<%- include('../partials/footer') %>

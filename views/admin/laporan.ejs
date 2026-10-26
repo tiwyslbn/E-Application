@@ -1,0 +1,32 @@
+<%- include('../partials/header') %>
+<div class="container py-4">
+  <div class="page-head"><div class="ph-ico"><i class="bi bi-file-earmark-bar-graph"></i></div><div class="ph-t"><h1>Laporan kunjungan dan pendapatan</h1><p>Ringkasan transaksi lunas per periode. Unduh CSV atau cetak.</p></div></div>
+  <form method="get" class="panel mb-4 no-print"><div class="row g-2 align-items-end">
+    <div class="col-md-3"><label class="form-label small text-muted" for="f-from">Dari tanggal kunjungan</label><input id="f-from" type="date" name="from" class="form-control" value="<%= from %>"></div>
+    <div class="col-md-3"><label class="form-label small text-muted" for="f-to">Sampai</label><input id="f-to" type="date" name="to" class="form-control" value="<%= to %>"></div>
+    <div class="col-md-3"><label class="form-label small text-muted" for="f-dest">Destinasi</label><select id="f-dest" name="dest" class="form-select"><option value="">Semua</option><% dests.forEach(d => { %><option value="<%= d.id %>" <%= destId === d.id ? 'selected' : '' %>><%= d.name %></option><% }) %></select></div>
+    <div class="col-md-3 d-flex gap-2"><button class="btn btn-green flex-fill">Tampilkan</button>
+      <a class="btn btn-outline-green" href="/admin/laporan?from=<%= from %>&to=<%= to %>&dest=<%= destId || '' %>&format=csv" title="Unduh CSV (Excel)"><i class="bi bi-file-earmark-excel"></i></a>
+      <button type="button" class="btn btn-outline-green" onclick="window.print()" title="Cetak"><i class="bi bi-printer"></i></button></div>
+  </div></form>
+  <div class="mb-3 small text-muted">Periode kunjungan: <strong><%= U.tanggalPendek(from) %></strong> s.d. <strong><%= U.tanggalPendek(to) %></strong> &middot; hanya transaksi berstatus lunas</div>
+  <div class="row g-3 mb-4">
+    <div class="col-6 col-lg-3"><div class="stat-card"><div><div class="val"><%= summary.transaksi %></div><div class="lbl">Transaksi lunas</div></div></div></div>
+    <div class="col-6 col-lg-3"><div class="stat-card"><div><div class="val"><%= summary.pengunjung %></div><div class="lbl">Total tiket (orang)</div></div></div></div>
+    <div class="col-6 col-lg-3"><div class="stat-card"><div><div class="val"><%= summary.checkin %></div><div class="lbl">Sudah check-in (orang)</div></div></div></div>
+    <div class="col-6 col-lg-3"><div class="stat-card"><div><div class="val"><%= U.rupiah(summary.pendapatan) %></div><div class="lbl">Total pendapatan</div></div></div></div>
+  </div>
+  <h6 class="mb-2">Rekap per Destinasi</h6>
+  <div class="panel p-0 overflow-hidden mb-4"><div class="table-responsive"><table class="table mb-0">
+    <thead><tr><th>Destinasi</th><th class="text-end">Transaksi</th><th class="text-end">Pengunjung</th><th class="text-end">Pendapatan</th></tr></thead>
+    <tbody><% byDest.forEach(r => { %><tr><td><%= r.name %></td><td class="text-end"><%= r.transaksi %></td><td class="text-end"><%= r.pengunjung %></td><td class="text-end"><%= U.rupiah(r.pendapatan) %></td></tr><% }) %>
+    <% if (!byDest.length) { %><tr><td colspan="4" class="text-center text-muted py-3">Tidak ada data pada periode ini.</td></tr><% } %></tbody>
+  </table></div></div>
+  <h6 class="mb-2">Rincian Transaksi</h6>
+  <div class="panel p-0 overflow-hidden"><div class="table-responsive"><table class="table table-sm mb-0">
+    <thead><tr><th>Kode</th><th>Tanggal</th><th>Destinasi</th><th>Pengunjung</th><th class="text-end">Orang</th><th class="text-end">Total</th><th>Check-in</th></tr></thead>
+    <tbody><% rows.slice(0, 60).forEach(r => { %><tr><td class="font-monospace small text-nowrap"><%= r.code %></td><td class="small"><%= U.tanggalPendek(r.visit_date) %></td><td class="small"><%= r.dest_name %></td><td class="small"><%= r.visitor %></td><td class="text-end"><%= r.qty_adult + r.qty_child %></td><td class="text-end"><%= U.rupiah(r.total) %></td><td class="small"><%= r.ticket_status === 'used' ? 'Sudah' : 'Belum' %></td></tr><% }) %></tbody>
+  </table></div></div>
+  <% if (rows.length > 60) { %><div class="small text-muted mt-2">Menampilkan 60 dari <%= rows.length %> baris. Unduh CSV untuk data lengkap.</div><% } %>
+</div>
+<%- include('../partials/footer') %>

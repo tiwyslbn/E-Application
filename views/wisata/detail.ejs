@@ -1,0 +1,93 @@
+<%- include('../partials/header') %>
+<section class="detail-hero">
+  <div class="detail-art"><%- include('../partials/scene', { d, mid: true }) %></div>
+  <div class="detail-grad"></div>
+  <div class="container detail-text">
+    <nav class="small mb-2"><a href="/wisata" class="text-white-50">Destinasi</a> <span class="text-white-50">/</span> <span class="text-white"><%= d.name %></span></nav>
+    <span class="chip-cat static"><%= d.category %></span>
+    <h1><%= d.name %></h1>
+    <div class="detail-chips"><span><i class="bi bi-clock"></i> <%= d.open_time %> - <%= d.close_time %> WIB</span><span><i class="bi bi-geo-alt"></i> <%= d.address.split(',')[0] %></span><span><i class="bi bi-people"></i> Sisa kuota hari ini <%= remaining %></span></div>
+    <% if (!currentUser || currentUser.role === 'user') { %><a href="#pesan" class="btn btn-gold mt-3 d-lg-none">Pesan tiket</a><% } %>
+  </div>
+  <div class="hero-edge"></div>
+</section>
+<div class="container py-4">
+  <div class="row g-4">
+    <div class="col-lg-7">
+      <div class="panel">
+        <h3 class="mb-2"><%= d.name %></h3>
+        <p class="text-muted"><%= d.description %></p>
+        <hr>
+        <dl class="facts">
+          <div class="wide"><dt>Alamat</dt><dd><i class="bi bi-geo-alt text-green me-1"></i><%= d.address %></dd></div>
+          <div><dt>Jam buka</dt><dd><%= d.open_time %> - <%= d.close_time %> WIB</dd></div>
+          <div><dt>Kuota harian</dt><dd><%= d.daily_quota %> pengunjung</dd></div>
+          <div><dt>Tiket dewasa</dt><dd><%= U.rupiah(d.price_adult) %></dd></div>
+          <div><dt>Tiket anak</dt><dd><%= U.rupiah(d.price_child) %></dd></div>
+          <div class="wide"><dt>Sisa kuota hari ini</dt><dd><%= remaining %></dd></div>
+        </dl>
+      </div>
+    </div>
+    <div class="col-lg-5">
+      <div class="panel booking position-sticky" id="pesan" style="top:84px">
+        <h5 class="mb-3"><i class="bi bi-ticket-perforated text-green me-1"></i>Pesan tiket</h5>
+        <% if (!currentUser) { %>
+          <div class="alert alert-warning small">Anda perlu login sebagai pengunjung untuk memesan tiket.</div>
+          <a href="/login" class="btn btn-green w-100 mb-2">Masuk</a><a href="/register" class="btn btn-outline-green w-100">Daftar Akun Baru</a>
+        <% } else if (currentUser.role !== 'user') { %>
+          <div class="alert alert-info small mb-0">Pemesanan hanya tersedia untuk akun pengunjung.</div>
+        <% } else { %>
+        <form method="post" action="/pesan" id="bookForm" novalidate>
+          <%- csrfField %>
+          <input type="hidden" name="destination_id" value="<%= d.id %>">
+          <div class="mb-3"><label class="form-label" for="visit_date">Tanggal kunjungan</label>
+            <input type="date" class="form-control" name="visit_date" id="visit_date" min="<%= today %>" max="<%= maxDate %>" value="<%= today %>" required></div>
+          <div class="mb-3"><label class="form-label" for="visit_slot">Sesi kunjungan</label>
+            <select class="form-select" name="visit_slot" id="visit_slot" required></select>
+            <div class="form-text" id="quotaInfo"></div></div>
+          <div class="row g-2 mb-3">
+            <div class="col-6"><label class="form-label">Dewasa <small class="text-muted">(<%= U.rupiah(d.price_adult) %>)</small></label>
+              <input type="number" class="form-control" name="qty_adult" id="qty_adult" min="1" max="10" value="1" required></div>
+            <div class="col-6"><label class="form-label">Anak <small class="text-muted">(<%= U.rupiah(d.price_child) %>)</small></label>
+              <input type="number" class="form-control" name="qty_child" id="qty_child" min="0" max="10" value="0"></div>
+          </div>
+          <div class="d-flex justify-content-between align-items-center border-top pt-3 mb-3">
+            <span class="text-muted">Total bayar</span><span class="fs-4 fw-bold text-green" id="total"><%= U.rupiah(d.price_adult) %></span></div>
+          <button class="btn btn-gold btn-lg w-100" id="btnSubmit"><i class="bi bi-cart-check me-1"></i>Lanjut ke Pembayaran</button>
+          <div class="form-text mt-2">Maks. 10 tiket per pesanan. Anak wajib didampingi dewasa. Batas pembayaran 30 menit.</div>
+        </form>
+        <script>
+        (function () {
+          var PA = <%= d.price_adult %>, PC = <%= d.price_child %>, DEST = <%= d.id %>;
+          var $ = function (id) { return document.getElementById(id); };
+          var rem = 0;
+          function rupiah(n) { return 'Rp ' + n.toLocaleString('id-ID'); }
+          function total() {
+            var a = parseInt($('qty_adult').value) || 0, c = parseInt($('qty_child').value) || 0;
+            $('total').textContent = rupiah(a * PA + c * PC);
+            var over = (a + c) > rem;
+            $('btnSubmit').disabled = over || rem === 0 || !$('visit_slot').value;
+            $('quotaInfo').className = 'form-text' + (over ? ' text-danger' : '');
+          }
+          function loadInfo() {
+            fetch('/api/kuota?dest=' + DEST + '&date=' + $('visit_date').value).then(function (r) { return r.json(); }).then(function (j) {
+              if (!j.ok) return;
+              rem = j.remaining;
+              var sel = $('visit_slot'); sel.innerHTML = '';
+              j.slots.forEach(function (s) { var o = document.createElement('option'); o.textContent = s; o.value = s; sel.appendChild(o); });
+              if (!j.slots.length) { var o = document.createElement('option'); o.textContent = 'Tidak ada sesi tersedia'; o.value = ''; sel.appendChild(o); }
+              $('quotaInfo').textContent = 'Sisa kuota pada tanggal ini: ' + rem + ' tiket';
+              total();
+            });
+          }
+          ['visit_date'].forEach(function (id) { $(id).addEventListener('change', loadInfo); });
+          ['qty_adult', 'qty_child', 'visit_slot'].forEach(function (id) { $(id).addEventListener('input', total); });
+          loadInfo();
+        })();
+        </script>
+        <% } %>
+      </div>
+    </div>
+  </div>
+</div>
+<%- include('../partials/footer') %>

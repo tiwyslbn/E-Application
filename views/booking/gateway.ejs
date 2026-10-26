@@ -1,0 +1,26 @@
+<%- include('../partials/header') %>
+<div class="container py-4" style="max-width:560px">
+  <div class="panel text-center">
+    <span class="badge bg-secondary mb-2">SANDBOX &middot; Simulasi Payment Gateway</span>
+    <h5 class="fw-bold"><%= pay.method %></h5>
+    <div class="text-muted small">Total tagihan</div>
+    <div class="display-6 fw-bold text-green mb-3"><%= U.rupiah(pay.amount) %></div>
+    <% if (qr) { %>
+      <img src="<%= qr %>" alt="QRIS" width="220" height="220" class="border rounded p-2 mb-2">
+      <p class="small text-muted">Pindai QRIS menggunakan aplikasi pembayaran Anda.</p>
+    <% } else if (pay.method.startsWith('Virtual')) { %>
+      <div class="small text-muted">Nomor Virtual Account</div>
+      <div class="fs-3 fw-bold font-monospace mb-2"><%= pay.reference %></div>
+      <p class="small text-muted">Transfer melalui ATM / mobile banking sesuai nominal di atas.</p>
+    <% } else { %>
+      <div class="small text-muted">Kode pembayaran <%= pay.method %></div>
+      <div class="fs-3 fw-bold font-monospace mb-2"><%= pay.reference %></div>
+      <p class="small text-muted">Buka aplikasi <%= pay.method %> lalu masukkan kode pembayaran.</p>
+    <% } %>
+    <div class="small text-muted mb-3">Pesanan <strong><%= b.code %></strong> &middot; batas bayar <%= b.expires_at.slice(11, 16) %> WIB</div>
+    <form method="post" action="/bayar/<%= b.code %>/konfirmasi"><%- csrfField %>
+      <button class="btn btn-green btn-lg w-100"><i class="bi bi-check2-circle me-1"></i>Simulasikan Pembayaran Berhasil</button></form>
+    <a class="btn btn-link btn-sm mt-2" href="/bayar/<%= b.code %>">Ganti metode pembayaran</a>
+  </div>
+</div>
+<%- include('../partials/footer') %>

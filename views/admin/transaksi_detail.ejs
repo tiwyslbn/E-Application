@@ -1,0 +1,68 @@
+<%- include('../partials/header') %>
+<% const ST = {pending:'Menunggu pembayaran', paid:'Lunas', cancelled:'Dibatalkan', expired:'Kedaluwarsa'}; %>
+<div class="container py-4">
+  <div class="page-head">
+    <div class="ph-ico"><i class="bi bi-receipt-cutoff"></i></div>
+    <div class="ph-t"><h1 class="font-monospace" style="font-family:inherit"><%= b.code %></h1><p><%= b.dest_name %> &middot; <%= visitor.name %></p></div>
+    <div class="ph-act"><span class="status-pill pill-<%= b.status %> fs-6"><%= ST[b.status] %></span><a href="/admin/transaksi" class="btn btn-outline-green"><i class="bi bi-arrow-left me-1"></i>Kembali</a></div>
+  </div>
+  <div class="row g-4">
+    <div class="col-lg-7">
+      <div class="panel mb-4"><h6 class="mb-3">Rincian pesanan</h6>
+        <dl class="kv">
+          <div><dt>Destinasi</dt><dd><%= b.dest_name %></dd></div>
+          <div><dt>Kunjungan</dt><dd><%= U.tanggal(b.visit_date) %><br><span class="text-muted fw-normal"><%= b.visit_slot %></span></dd></div>
+          <div><dt>Pengunjung</dt><dd><%= b.qty_adult %> dewasa, <%= b.qty_child %> anak</dd></div>
+          <div><dt>Total</dt><dd><%= U.rupiah(b.total) %></dd></div>
+          <div><dt>Metode bayar</dt><dd><%= b.method || '-' %><% if (b.reference) { %><br><span class="small text-muted fw-normal font-monospace"><%= b.reference %></span><% } %></dd></div>
+          <div><dt>Dibuat</dt><dd><%= b.created_at %></dd></div>
+          <% if (b.status === 'pending') { %><div class="wide"><dt>Batas pembayaran</dt><dd><%= b.expires_at %></dd></div><% } %>
+        </dl></div>
+      <div class="panel"><h6 class="mb-3">Pengunjung</h6>
+        <dl class="kv"><div><dt>Nama</dt><dd><%= visitor.name %></dd></div><div><dt>No. HP</dt><dd><%= visitor.phone || '-' %></dd></div><div class="wide"><dt>Email</dt><dd><%= visitor.email %></dd></div></dl></div>
+    </div>
+    <div class="col-lg-5">
+      <div class="panel mb-4"><h6 class="mb-3">Ubah status</h6>
+        <%- include('../partials/booking_btns', { url: '/admin/transaksi/' + b.code + '/aksi', actions, status: b.status, note: true }) %>
+        <div class="small text-muted mt-3">Setiap perubahan dicatat pada riwayat di bawah.</div></div>
+      <% if (canReschedule) { %>
+      <div class="panel mb-4"><h6 class="mb-3"><i class="bi bi-calendar2-week me-1"></i>Jadwal ulang</h6>
+        <form method="post" action="/admin/transaksi/<%= b.code %>/jadwal" id="rsForm"><%- csrfField %>
+          <div class="row g-2">
+            <div class="col-6"><label class="form-label small" for="rsDate">Tanggal baru</label><input type="date" id="rsDate" name="date" class="form-control" value="<%= b.visit_date %>" min="<%= today %>" required></div>
+            <div class="col-6"><label class="form-label small" for="rsSlot">Sesi</label><select id="rsSlot" name="slot" class="form-select" required><option value="<%= b.visit_slot %>"><%= b.visit_slot %></option></select></div>
+          </div>
+          <div class="small text-muted mt-2" id="rsInfo">Harga tidak berubah. Kuota tanggal baru diperiksa otomatis.</div>
+          <input name="catatan" maxlength="150" class="form-control mt-2" placeholder="Alasan (opsional)" aria-label="Alasan jadwal ulang">
+          <button class="btn btn-outline-green mt-3"><i class="bi bi-arrow-repeat me-1"></i>Simpan jadwal baru</button>
+        </form></div>
+      <script>
+      (function () {
+        var d = document.getElementById('rsDate'), s = document.getElementById('rsSlot'), info = document.getElementById('rsInfo'), cur = '<%= b.visit_slot %>';
+        var qty = <%= b.qty_adult + b.qty_child %>;
+        function load() {
+          fetch('/api/kuota?dest=<%= b.destination_id %>&date=' + d.value).then(function (r) { return r.json(); }).then(function (j) {
+            if (!j.ok) return; s.innerHTML = '';
+            j.slots.forEach(function (x) { var o = document.createElement('option'); o.value = x; o.textContent = x; if (x === cur) o.selected = true; s.appendChild(o); });
+            var same = d.value === '<%= b.visit_date %>', ok = same || j.remaining >= qty;
+            info.textContent = same ? 'Tanggal sama: hanya sesi yang berubah.' : 'Sisa kuota ' + d.value + ': ' + j.remaining + ' tiket' + (ok ? '.' : ' (kurang dari ' + qty + ' tiket pesanan ini).');
+            info.className = 'small mt-2 ' + (ok ? 'text-muted' : 'text-danger');
+          });
+        }
+        d.addEventListener('change', load); load();
+      })();
+      </script>
+      <% } %>
+      <div class="panel mb-4"><h6 class="mb-3">E-tiket &amp; antrian</h6>
+        <% if (ticket) { %><dl class="kv"><div><dt>Kode tiket</dt><dd class="font-monospace small"><%= ticket.ticket_code %></dd></div>
+          <div><dt>Status tiket</dt><dd><span class="status-pill pill-<%= ticket.status === 'used' ? 'used' : 'valid' %>"><%= ticket.status === 'used' ? 'Sudah dipakai' : 'Berlaku' %></span></dd></div>
+          <% if (queue) { %><div><dt>Nomor antrian</dt><dd><%= B.queueLabel(d.code, queue.queue_number) %></dd></div><% } %>
+          <% if (ticket.checkin_at) { %><div><dt>Check-in</dt><dd><%= ticket.checkin_at %></dd></div><% } %></dl>
+        <% } else { %><div class="small text-muted">E-tiket diterbitkan setelah pesanan lunas.</div><% } %></div>
+      <div class="panel"><h6 class="mb-3">Riwayat perubahan</h6>
+        <% if (!logs.length) { %><div class="small text-muted">Belum ada perubahan manual.</div><% } else { %>
+        <ul class="tl"><% logs.forEach(l => { %><li><div class="t-h"><%= ACTION_LABEL[l.action] || l.action %></div><div class="t-s"><%= l.created_at %> &middot; <%= l.actor || '-' %> (<%= l.actor_role === 'admin' ? 'admin' : 'petugas' %>)<% if (l.note) { %><br><%= l.note %><% } %></div></li><% }) %></ul><% } %></div>
+    </div>
+  </div>
+</div>
+<%- include('../partials/footer') %>

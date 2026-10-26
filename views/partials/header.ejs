@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title><%= title %> | Medan Smart Tourism</title>
+  <meta name="description" content="Pesan e-tiket wisata Kota Medan, bayar online, dapat nomor antrian digital, dan masuk dengan scan QR.">
+  <meta name="theme-color" content="#06231e">
+  <script>(function(){try{var t=localStorage.getItem('mst-theme');if(!t&&window.matchMedia&&matchMedia('(prefers-color-scheme: dark)').matches)t='dark';if(t)document.documentElement.setAttribute('data-bs-theme',t);}catch(e){}})();</script>
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="MedanTour">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="manifest" href="/manifest.json">
+  <link rel="icon" type="image/svg+xml" href="/img/icon.svg">
+  <link rel="icon" type="image/png" sizes="32x32" href="/img/favicon-32.png">
+  <link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
+  <link rel="preload" href="/fonts/plus-jakarta-sans-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="/vendor/bootstrap/css/bootstrap.min.css">
+  <link rel="stylesheet" href="/vendor/icons/bootstrap-icons.css">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<% const role = currentUser ? currentUser.role : null;
+   const staffUi = role === 'admin' || role === 'petugas';
+   const on = (href) => (href === '/' || href === '/admin' || href === '/petugas') ? path === href : path.startsWith(href);
+   let links, groups = [];
+   if (role === 'admin') {
+     links = [['/admin', 'Dashboard', 'bi-speedometer2'], ['/admin/wisata', 'Destinasi', 'bi-geo-alt'], ['/admin/transaksi', 'Transaksi', 'bi-receipt'], ['/petugas/scan', 'Scan', 'bi-qr-code-scan'], ['/admin/pengguna', 'Pengguna', 'bi-people']];
+     groups = [['Ringkasan', [['/admin', 'Dashboard', 'bi-speedometer2']]],
+       ['Kelola', [['/admin/wisata', 'Destinasi', 'bi-geo-alt'], ['/admin/pengguna', 'Pengguna', 'bi-people'], ['/admin/transaksi', 'Transaksi', 'bi-receipt', pendingCount], ['/admin/laporan', 'Laporan', 'bi-file-earmark-bar-graph']]],
+       ['Operasional loket', [['/petugas', 'Loket', 'bi-house-door'], ['/petugas/pesanan', 'Pesanan', 'bi-ticket-detailed'], ['/petugas/scan', 'Scan check-in', 'bi-qr-code-scan'], ['/petugas/antrian', 'Kelola antrian', 'bi-hourglass-split'], ['/antrian', 'Papan antrian', 'bi-display']]]];
+   } else if (role === 'petugas') {
+     links = [['/petugas', 'Loket', 'bi-house-door'], ['/petugas/pesanan', 'Pesanan', 'bi-ticket-detailed'], ['/petugas/scan', 'Scan', 'bi-qr-code-scan'], ['/petugas/antrian', 'Antrian', 'bi-hourglass-split'], ['/antrian', 'Papan', 'bi-display']];
+     groups = [['Loket', [['/petugas', 'Dashboard', 'bi-house-door'], ['/petugas/pesanan', 'Pesanan', 'bi-ticket-detailed', pendingCount], ['/petugas/scan', 'Scan check-in', 'bi-qr-code-scan']]],
+       ['Antrian', [['/petugas/antrian', 'Kelola antrian', 'bi-hourglass-split'], ['/antrian', 'Papan antrian', 'bi-display']]]];
+   } else { links = [['/', 'Beranda', 'bi-house-door'], ['/wisata', 'Wisata', 'bi-compass'], ['/antrian', 'Antrian', 'bi-hourglass-split']];
+     links.push(role === 'user' ? ['/tiket', 'Tiket Saya', 'bi-ticket-perforated'] : ['/login', 'Masuk', 'bi-person']); }
+   const home = role === 'admin' ? '/admin' : role === 'petugas' ? '/petugas' : '/'; %>
+<body class="<%= staffUi ? 'has-side' : '' %>">
+<header class="appbar no-print" id="mainNav">
+  <div class="container appbar-in">
+    <a class="brand" href="<%= home %>"><img src="/img/icon.svg" alt="" width="34" height="34"><span>Medan Smart Tourism</span></a>
+    <ul class="topnav d-none d-lg-flex">
+      <% if (!staffUi) links.forEach(l => { if (!currentUser && l[0] === '/login') return; %>
+        <li><a class="<%= on(l[0]) ? 'active' : '' %>" href="<%= l[0] %>" <%- on(l[0]) ? 'aria-current="page"' : '' %>><i class="bi <%= l[2] %>"></i><%= l[1] %></a></li>
+      <% }) %>
+    </ul>
+    <div class="appbar-actions">
+      <button type="button" class="theme-btn" data-theme-toggle aria-label="Ganti mode terang/gelap" title="Mode terang/gelap"><i class="bi bi-moon-stars"></i><i class="bi bi-sun"></i></button>
+      <button type="button" class="btn btn-sm btn-ghost" data-install hidden><i class="bi bi-download me-1"></i>Pasang aplikasi</button>
+      <% if (currentUser) { %>
+        <div class="dropdown">
+          <button class="user-chip dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Menu akun">
+            <span class="av"><%= (currentUser.name || '?').trim().charAt(0).toUpperCase() %></span><span class="nm d-none d-sm-inline"><%= currentUser.name %></span>
+          </button>
+          <ul class="dropdown-menu dropdown-menu-end">
+            <li class="menu-who"><b><%= currentUser.name %></b><span><%= {admin:'Administrator', petugas:'Petugas loket', user:'Pengunjung'}[currentUser.role] || currentUser.role %></span></li>
+            <li><a class="dropdown-item" href="/akun"><i class="bi bi-person-gear me-2"></i>Akun saya</a></li>
+            <% if (role === 'admin') { %><li class="d-lg-none"><a class="dropdown-item" href="/admin/laporan"><i class="bi bi-file-earmark-bar-graph me-2"></i>Laporan</a></li><li class="d-lg-none"><a class="dropdown-item" href="/petugas/pesanan"><i class="bi bi-ticket-detailed me-2"></i>Pesanan loket</a></li><li class="d-lg-none"><a class="dropdown-item" href="/petugas/antrian"><i class="bi bi-hourglass-split me-2"></i>Kelola antrian</a></li><% } %>
+            <li><button type="button" class="dropdown-item" data-install hidden><i class="bi bi-download me-2"></i>Pasang aplikasi</button></li>
+            <li><form method="post" action="/logout" class="m-0" data-logout><%- csrfField %><button class="dropdown-item text-danger"><i class="bi bi-box-arrow-right me-2"></i>Keluar</button></form></li>
+          </ul>
+        </div>
+      <% } else { %>
+        <a class="btn btn-sm btn-ghost" href="/login">Masuk</a>
+        <a class="btn btn-sm btn-gold d-none d-sm-inline-block" href="/register">Daftar</a>
+      <% } %>
+    </div>
+  </div>
+</header>
+<% if (staffUi) { %>
+<aside class="side no-print" aria-label="Menu <%= role %>">
+  <% groups.forEach(g => { %><div class="sg"><%= g[0] %></div>
+    <% g[1].forEach(l => { %><a class="<%= on(l[0]) ? 'active' : '' %>" href="<%= l[0] %>" <%- on(l[0]) ? 'aria-current="page"' : '' %>><i class="bi <%= l[2] %>"></i><%= l[1] %><% if (l[3]) { %><span class="cnt" title="Menunggu pembayaran"><%= l[3] %></span><% } %></a><% }) %>
+  <% }) %>
+  <div class="side-foot"><i class="bi bi-shield-check me-1"></i>Masuk sebagai <b><%= role === 'admin' ? 'Administrator' : 'Petugas' %></b><br>Semua perubahan status pesanan tercatat.</div>
+</aside>
+<% } %>
+<nav class="tabbar d-lg-none no-print" aria-label="Navigasi utama">
+  <% links.forEach(l => { %><a class="<%= on(l[0]) ? 'active' : '' %>" href="<%= l[0] %>" <%- on(l[0]) ? 'aria-current="page"' : '' %>><i class="bi <%= l[2] %>"></i><span><%= l[1] %></span></a><% }) %>
+</nav>
+<div class="net-banner no-print" id="netBanner" role="status" aria-live="polite"></div>
+<main>
+<% if (flash) { %>
+  <div class="container mt-3"><div class="alert alert-<%= flash.type %> alert-dismissible fade show mb-0" role="alert"><%= flash.text %><button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Tutup"></button></div></div>
+<% } %>

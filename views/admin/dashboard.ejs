@@ -1,0 +1,74 @@
+<%- include('../partials/header') %>
+<div class="container py-4">
+  <section class="welcome">
+    <div class="w-row">
+      <div><h1>Halo, <%= currentUser.name.split(' ')[0] %></h1><p><%= U.tanggal(today) %> &middot; ringkasan operasional wisata Kota Medan</p></div>
+      <div class="w-act">
+        <a href="/petugas/scan" class="btn btn-gold"><i class="bi bi-qr-code-scan me-1"></i>Scan check-in</a>
+        <a href="/admin/transaksi" class="btn btn-ghost"><i class="bi bi-receipt me-1"></i>Transaksi</a>
+        <a href="/admin/wisata/baru" class="btn btn-ghost"><i class="bi bi-plus-lg me-1"></i>Destinasi baru</a>
+      </div>
+    </div>
+    <div class="rebung"></div>
+  </section>
+  <% if (cards.menunggu > 0) { %>
+    <div class="alert-attn"><i class="bi bi-hourglass-split"></i><div class="flex-fill"><b><%= cards.menunggu %> pesanan menunggu pembayaran.</b> Admin dan petugas dapat melunasi atau membatalkannya.</div><a class="btn btn-sm btn-gold" href="/admin/transaksi?status=pending">Tinjau</a></div>
+  <% } %>
+  <div class="row g-3 mb-4">
+    <% [
+      ['Pendapatan hari ini', U.rupiah(cards.pendapatanHariIni), 'bi-cash-coin', '#0f5c4d'],
+      ['Pendapatan bulan ini', U.rupiah(cards.pendapatanBulanIni), 'bi-graph-up-arrow', '#c98a00'],
+      ['Tiket terjual hari ini', cards.tiketHariIni, 'bi-ticket-perforated-fill', '#1d6fa5'],
+      ['Sudah check-in hari ini', cards.checkinHariIni, 'bi-people-fill', '#a3262a'],
+      ['Pengunjung terdaftar', cards.wisatawan, 'bi-person-check-fill', '#3f6f2a'],
+      ['Menunggu pembayaran', cards.menunggu, 'bi-hourglass-split', '#7a4e2d'],
+    ].forEach(c => { %>
+      <div class="col-6 col-xl-4"><div class="stat-card"><div class="ico" style="background-color:<%= c[3] %>"><i class="bi <%= c[2] %>"></i></div><div><div class="val"><%= c[1] %></div><div class="lbl"><%= c[0] %></div></div></div></div>
+    <% }) %>
+  </div>
+  <div class="row g-4 mb-4">
+    <div class="col-lg-7"><div class="panel"><h6 class="mb-0">Kunjungan harian</h6><div class="small text-muted mb-2">7 hari terakhir</div><div style="height:260px"><canvas id="cHarian"></canvas></div></div></div>
+    <div class="col-lg-5"><div class="panel"><h6 class="mb-0">Pengunjung per destinasi</h6><div class="small text-muted mb-2">30 hari terakhir</div><div style="height:260px"><canvas id="cDest"></canvas></div></div></div>
+  </div>
+  <div class="row g-4 mb-4">
+    <div class="col-lg-5"><div class="panel"><h6 class="mb-0">Kunjungan mingguan</h6><div class="small text-muted mb-2">4 minggu terakhir</div><div style="height:240px"><canvas id="cMingguan"></canvas></div></div></div>
+    <div class="col-lg-7"><div class="panel"><h6 class="mb-3">Destinasi terlaris <span class="small text-muted fw-normal">30 hari terakhir</span></h6>
+      <% const mx = Math.max(1, ...perDest.map(x => x.n)); perDest.slice(0, 5).forEach((x, i) => { %>
+        <div class="d-flex align-items-center gap-3 mb-3">
+          <span class="fw-bold text-muted" style="width:18px"><%= i + 1 %></span>
+          <% if (hasPhoto(x.code)) { %><img class="thumb" style="width:48px;height:48px" src="<%= photoUrl(x.code) %>" alt="" loading="lazy"><% } else { %><span class="av-sm" style="width:48px;height:48px;border-radius:14px;background:<%= x.color %>"><i class="bi <%= x.icon %>"></i></span><% } %>
+          <div class="flex-fill" style="min-width:0"><div class="d-flex justify-content-between gap-2"><span class="fw-bold text-truncate"><%= x.name %></span><span class="small text-muted text-nowrap"><%= x.n %> orang</span></div>
+            <div class="quota-bar" style="margin:6px 0 0"><span style="width:<%= Math.round(x.n * 100 / mx) %>%;background:<%= x.color %>"></span></div></div>
+        </div>
+      <% }) %>
+    </div></div>
+  </div>
+  <div class="panel p-0 overflow-hidden"><div class="p-3 pb-2 d-flex justify-content-between align-items-center"><h6 class="mb-0">Transaksi terbaru</h6><a class="btn btn-sm btn-outline-green" href="/admin/transaksi">Lihat semua</a></div><div class="table-responsive"><table class="table table-hover align-middle mb-0">
+    <thead><tr><th>Kode</th><th>Pengunjung</th><th>Destinasi</th><th class="text-end">Total</th><th>Status</th></tr></thead>
+    <tbody><% recent.forEach(r => { %><tr><td class="font-monospace small text-nowrap"><a href="/admin/transaksi/<%= r.code %>"><%= r.code %></a></td><td class="text-nowrap"><%= r.visitor %></td><td class="small"><%= r.dest_name %></td><td class="text-end text-nowrap"><%= U.rupiah(r.total) %></td><td><span class="status-pill pill-<%= r.status %>"><%= {pending:'Menunggu', paid:'Lunas', cancelled:'Batal', expired:'Kedaluwarsa'}[r.status] %></span></td></tr><% }) %></tbody>
+  </table></div></div>
+</div>
+<script src="/vendor/chart/chart.umd.js"></script>
+<script>
+(function () {
+  var harian = <%- JSON.stringify(harian) %>, mingguan = <%- JSON.stringify(mingguan) %>, perDest = <%- JSON.stringify(perDest) %>;
+  var charts = [];
+  function pal() { var d = document.documentElement.getAttribute('data-bs-theme') === 'dark';
+    return { text: d ? '#97aba2' : '#56665f', grid: d ? 'rgba(255,255,255,.08)' : 'rgba(0,0,0,.07)', G: d ? '#3fbf9f' : '#0b4a3e', fill: d ? 'rgba(63,191,159,.16)' : 'rgba(11,74,62,.12)', Y: '#edb41a', edge: d ? '#111e1a' : '#ffffff' }; }
+  function build() {
+    charts.forEach(function (c) { c.destroy(); }); charts = [];
+    var p = pal();
+    Chart.defaults.font.family = "'Plus Jakarta Sans', system-ui, sans-serif"; Chart.defaults.color = p.text; Chart.defaults.borderColor = p.grid;
+    charts.push(new Chart(document.getElementById('cHarian'), { type: 'line', data: { labels: harian.labels, datasets: [
+      { label: 'Tiket terjual (orang)', data: harian.terjual, borderColor: p.G, backgroundColor: p.fill, fill: true, tension: .3 },
+      { label: 'Sudah check-in (orang)', data: harian.hadir, borderColor: p.Y, backgroundColor: p.Y, tension: .3 }] },
+      options: { maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } }, scales: { y: { beginAtZero: true } } } }));
+    charts.push(new Chart(document.getElementById('cMingguan'), { type: 'bar', data: { labels: mingguan.labels, datasets: [{ label: 'Pengunjung', data: mingguan.pengunjung, backgroundColor: p.G, borderRadius: 6 }] },
+      options: { maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } } }));
+    charts.push(new Chart(document.getElementById('cDest'), { type: 'doughnut', data: { labels: perDest.map(function (d) { return d.name.length > 26 ? d.name.slice(0, 24) + '…' : d.name; }), datasets: [{ data: perDest.map(function (d) { return d.n; }), backgroundColor: perDest.map(function (d) { return d.color; }), borderColor: p.edge, borderWidth: 2 }] },
+      options: { maintainAspectRatio: false, plugins: { legend: { position: 'right', labels: { boxWidth: 12, font: { size: 11 } } } } } }));
+  }
+  build(); window.addEventListener('themechange', build);
+})();
+</script>
+<%- include('../partials/footer') %>

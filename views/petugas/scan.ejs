@@ -1,0 +1,67 @@
+<%- include('../partials/header') %>
+<div class="container py-4" style="max-width:860px">
+  <div class="page-head"><div class="ph-ico"><i class="bi bi-qr-code-scan"></i></div><div class="ph-t"><h1>Scan check-in</h1><p>Pindai QR e-tiket atau masukkan kode tiket secara manual.</p></div></div>
+  <div class="row g-4">
+    <div class="col-md-6">
+      <div class="panel">
+        <h6 class="mb-3"><i class="bi bi-camera-video me-1"></i>Pindai QR Code</h6>
+        <div id="reader"><div class="text-white-50 text-center" style="padding-top:90px"><i class="bi bi-camera-video-off fs-1"></i><div class="small mt-2">Kamera belum aktif</div></div></div>
+        <div class="text-center mt-2"><button class="btn btn-sm btn-outline-green" id="btnCam"><i class="bi bi-camera-video me-1"></i>Aktifkan Kamera</button></div>
+        <hr>
+        <h6 class="mb-2"><i class="bi bi-keyboard me-1"></i>Input kode manual</h6>
+        <form id="manualForm" class="d-flex gap-2"><input id="manualCode" class="form-control text-uppercase font-monospace" placeholder="TKT-XXXXXXXXXX" autocomplete="off"><button class="btn btn-green">Cek</button></form>
+      </div>
+    </div>
+    <div class="col-md-6"><div class="panel" style="min-height:300px"><h6 class="mb-3">Hasil Pemindaian</h6><div id="result" class="text-muted">Belum ada pemindaian. Arahkan kamera ke QR Code atau masukkan kode tiket.</div></div></div>
+  </div>
+</div>
+<script src="/vendor/qrscan/html5-qrcode.min.js"></script>
+<script>
+(function () {
+  var CSRF = '<%= csrfToken %>', scanner = null;
+  var box = document.getElementById('result');
+  function esc(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+  function show(j) {
+    var t = j.ticket, ok = j.ok;
+    var h = '<div class="scan-result ' + (ok ? 'scan-ok' : 'scan-bad') + '"><div class="fs-5 fw-bold mb-1"><i class="bi ' + (ok ? 'bi-check-circle-fill text-success' : 'bi-x-circle-fill text-danger') + ' me-1"></i>' + (ok ? 'CHECK-IN BERHASIL' : 'CHECK-IN DITOLAK') + '</div><div class="mb-2">' + esc(j.message) + '</div>';
+    if (t) h += '<table class="table table-sm mb-0" style="--bs-table-bg:transparent"><tr><td>Pengunjung</td><td><strong>' + esc(t.visitor) + '</strong></td></tr><tr><td>Destinasi</td><td>' + esc(t.destination) + '</td></tr><tr><td>Kunjungan</td><td>' + esc(t.visit_date) + ' (' + esc(t.visit_slot) + ')</td></tr><tr><td>Jumlah</td><td>' + t.adult + ' dewasa, ' + t.child + ' anak</td></tr><tr><td>No. antrian</td><td>' + esc(t.queue || '-') + '</td></tr><tr><td>Kode pesanan</td><td class="font-monospace">' + esc(t.booking_code) + '</td></tr></table>';
+    box.className = ''; box.innerHTML = h + '</div>';
+  }
+  var inflight = false, camCooldown = false;
+  function check(code, fromCamera) {
+    if (inflight || !code) return;
+    if (fromCamera) { if (camCooldown) return; camCooldown = true; setTimeout(function () { camCooldown = false; }, 2500); } // cegah satu QR terbaca berkali-kali
+    inflight = true;
+    fetch('/api/checkin', { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-csrf-token': CSRF }, body: JSON.stringify({ code: code }) })
+      .then(function (r) { return r.json(); }).then(show)
+      .catch(function () { box.innerHTML = '<div class="alert alert-danger">Gagal menghubungi server.</div>'; })
+      .finally(function () { inflight = false; });
+  }
+  document.getElementById('manualForm').addEventListener('submit', function (e) { e.preventDefault(); check(document.getElementById('manualCode').value.trim()); });
+  var btn = document.getElementById('btnCam'), reader = document.getElementById('reader'), starting = false;
+  var PLACEHOLDER = reader.innerHTML;
+  function setBtn(on) {
+    btn.innerHTML = on ? '<i class="bi bi-camera-video-off me-1"></i>Matikan Kamera' : '<i class="bi bi-camera-video me-1"></i>Aktifkan Kamera';
+    btn.classList.toggle('btn-outline-danger', on); btn.classList.toggle('btn-outline-green', !on);
+  }
+  function stopCam() {
+    if (!scanner) return Promise.resolve();
+    var sc = scanner; scanner = null;
+    return sc.stop().catch(function () {}).then(function () { try { sc.clear(); } catch (e) {} reader.innerHTML = PLACEHOLDER; setBtn(false); });
+  }
+  btn.addEventListener('click', function () {
+    if (starting) return;
+    if (scanner) { stopCam(); return; }
+    starting = true; btn.disabled = true; btn.textContent = 'Menyalakan...';
+    scanner = new Html5Qrcode('reader');
+    scanner.start({ facingMode: 'environment' }, { fps: 10, qrbox: 220 }, function (text) { check(text, true); }, function () {})
+      .then(function () { setBtn(true); })
+      .catch(function () { scanner = null; reader.innerHTML = PLACEHOLDER; setBtn(false); alert('Kamera tidak tersedia / izin ditolak. Gunakan input kode manual.'); })
+      .finally(function () { starting = false; btn.disabled = false; });
+  });
+  // matikan kamera saat halaman ditutup / pindah tab agar lampu kamera tidak menyala terus
+  window.addEventListener('pagehide', stopCam);
+  document.addEventListener('visibilitychange', function () { if (document.hidden) stopCam(); });
+})();
+</script>
+<%- include('../partials/footer') %>

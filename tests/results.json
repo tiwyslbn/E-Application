@@ -1,0 +1,659 @@
+[
+  {
+    "id": "BB-01",
+    "modul": "Login",
+    "skenario": "Login admin dengan data valid",
+    "input": "admin@smarttour.id / admin123",
+    "harapan": "Diarahkan ke /admin",
+    "aktual": "HTTP 302 → /admin",
+    "status": "Berhasil"
+  },
+  {
+    "id": "BB-02",
+    "modul": "Login",
+    "skenario": "Login dengan password salah",
+    "input": "admin@smarttour.id / salahsekali",
+    "harapan": "Ditolak, pesan kesalahan tampil",
+    "aktual": "HTTP 401, pesan \"Email atau password salah\" tampil",
+    "status": "Berhasil"
+  },
+  {
+    "id": "BB-03",
+    "modul": "Login",
+    "skenario": "Login dengan form kosong",
+    "input": "email & password kosong",
+    "harapan": "Ditolak, validasi wajib isi",
+    "aktual": "HTTP 400, pesan validasi tampil",
+    "status": "Berhasil"
+  },
+  {
+    "id": "BB-04",
+    "modul": "Registrasi",
+    "skenario": "Registrasi wisatawan data valid",
+    "input": "nama, email baru, password 8 karakter",
+    "harapan": "Akun dibuat, diarahkan ke /login",
+    "aktual": "HTTP 302 → /login",
+    "status": "Berhasil"
+  },
+  {
+    "id": "BB-05",
+    "modul": "Registrasi",
+    "skenario": "Registrasi dengan email yang sudah terdaftar",
+    "input": "uji1792657960608@mail.com",
+    "harapan": "Ditolak, pesan email sudah terdaftar",
+    "aktual": "HTTP 400, pesan tampil",
+    "status": "Berhasil"
+  },
+  {
+    "id": "BB-06",
+    "modul": "Registrasi",
+    "skenario": "Password pendek & konfirmasi tidak sama",
+    "input": "password 123 / konfirmasi 456",
+    "harapan": "Ditolak dengan pesan validasi",
+    "aktual": "HTTP 400",
+    "status": "Berhasil"
+  },
+  {
+    "id": "BB-07",
+    "modul": "Hak akses",
+    "skenario": "Akses /admin tanpa login",
+    "input": "GET /admin (guest)",
+    "harapan": "Diarahkan ke halaman login",
+    "aktual": "HTTP 302 → /login",
+    "status": "Berhasil"
+  },
+  {
+    "id": "BB-08",
+    "modul": "Hak akses",
+    "skenario": "Wisatawan membuka /admin",
+    "input": "GET /admin (role user)",
+    "harapan": "Ditolak (403)",
+    "aktual": "HTTP 403",
+    "status": "Berhasil"
+  },
+  {
+    "id": "BB-09",
+    "modul": "Katalog",
+    "skenario": "Membuka detail destinasi",
+    "input": "GET /wisata/1",
+    "harapan": "Tampil nama, harga, jam buka",
+    "aktual": "HTTP 200, data tampil",
+    "status": "Berhasil"
+  },
+  {
+    "id": "BB-10",
+    "modul": "Booking",
+    "skenario": "Pesan tiket valid (2 dewasa, 1 anak)",
+    "input": "Istana Maimun, 2026-10-23, 08:00 - 10:00",
+    "harapan": "Pesanan pending, total Rp 25.000, ke halaman bayar",
+    "aktual": "HTTP 302 → /bayar/MST-261023-VEZ4; total=25000; status=pending",
+    "status": "Berhasil"
+  },
+  {
+    "id": "BB-11",
+    "modul": "Booking",
+    "skenario": "Pesan tiket dengan tanggal kemarin",
+    "input": "visit_date = kemarin",
+    "harapan": "Ditolak: tanggal tidak boleh masa lalu",
+    "aktual": "Pesan penolakan tampil",
+    "status": "Berhasil"
+  },
+  {
+    "id": "BB-12",
+    "modul": "Booking",
+    "skenario": "Pesan hanya tiket anak (tanpa dewasa)",
+    "input": "dewasa 0, anak 2",
+    "harapan": "Ditolak: wajib didampingi dewasa",
+    "aktual": "Pesan penolakan tampil",
+    "status": "Berhasil"
+  },
+  {
+    "id": "BB-13",
+    "modul": "Booking",
+    "skenario": "Pesan melebihi batas 10 tiket",
+    "input": "dewasa 11",
+    "harapan": "Ditolak: maksimal 10 tiket",
+    "aktual": "Pesan penolakan tampil",
+    "status": "Berhasil"
+  },
+  {
+    "id": "BB-14",
+    "modul": "Booking",
+    "skenario": "Pesan lebih dari 30 hari ke depan",
+    "input": "visit_date = +45 hari",
+    "harapan": "Ditolak: maksimal 30 hari",
+    "aktual": "Pesan penolakan tampil",
+    "status": "Berhasil"
+  },
+  {
+    "id": "BB-15",
+    "modul": "CRUD Destinasi",
+    "skenario": "Admin menambah destinasi baru",
+    "input": "kode UJ, kuota 3",
+    "harapan": "Tersimpan, kembali ke daftar",
+    "aktual": "HTTP 302 → /admin/wisata; data tersimpan",
+    "status": "Berhasil"
+  },
+  {
+    "id": "BB-16",
+    "modul": "Booking",
+    "skenario": "Pesan melebihi sisa kuota (kuota 3, pesan 4)",
+    "input": "dewasa 4",
+    "harapan": "Ditolak: kuota tidak mencukupi",
+    "aktual": "Pesan penolakan tampil",
+    "status": "Berhasil"
+  },
+  {
+    "id": "BB-17",
+    "modul": "Pembayaran",
+    "skenario": "Membuka halaman pembayaran",
+    "input": "GET /bayar/MST-261023-VEZ4",
+    "harapan": "Tampil ringkasan & metode bayar",
+    "aktual": "HTTP 200",
+    "status": "Berhasil"
+  },
+  {
+    "id": "BB-18",
+    "modul": "Pembayaran",
+    "skenario": "Memilih metode QRIS",
+    "input": "method = QRIS",
+    "harapan": "Halaman gateway sandbox + QR tampil",
+    "aktual": "HTTP 200, QR tampil",
+    "status": "Berhasil"
+  },
+  {
+    "id": "BB-19",
+    "modul": "Pembayaran",
+    "skenario": "Metode pembayaran tidak valid",
+    "input": "method = BITCOIN",
+    "harapan": "Ditolak",
+    "aktual": "Pesan penolakan tampil",
+    "status": "Berhasil"
+  },
+  {
+    "id": "BB-20",
+    "modul": "Pembayaran",
+    "skenario": "Konfirmasi pembayaran sukses",
+    "input": "POST /bayar/{kode}/konfirmasi",
+    "harapan": "Status lunas, e-tiket QR & nomor antrian terbit",
+    "aktual": "status=paid; tiket=TKT-QPMX57VQD7; antrian=1",
+    "status": "Berhasil"
+  },
+  {
+    "id": "BB-21",
+    "modul": "Pembayaran",
+    "skenario": "Konfirmasi dua kali pada pesanan yang sama",
+    "input": "POST konfirmasi (ulang)",
+    "harapan": "Ditolak, tiket tidak dobel",
+    "aktual": "jumlah tiket = 1",
+    "status": "Berhasil"
+  },
+  {
+    "id": "BB-22",
+    "modul": "Pembayaran",
+    "skenario": "Membatalkan pesanan yang belum dibayar",
+    "input": "POST /bayar/{kode}/batal",
+    "harapan": "Status menjadi cancelled",
+    "aktual": "status=cancelled",
+    "status": "Berhasil"
+  },
+  {
+    "id": "BB-23",
+    "modul": "Pembayaran",
+    "skenario": "Pesanan melewati batas waktu bayar 30 menit",
+    "input": "expires_at diset ke masa lalu",
+    "harapan": "Status otomatis menjadi expired",
+    "aktual": "status=expired",
+    "status": "Berhasil"
+  },
+  {
+    "id": "BB-24",
+    "modul": "Hak akses",
+    "skenario": "Pengunjung lain membuka e-tiket milik orang lain",
+    "input": "GET /tiket/MST-261023-VEZ4 (akun pengunjung lain)",
+    "harapan": "Ditolak (404)",
+    "aktual": "HTTP 404",
+    "status": "Berhasil"
+  },
+  {
+    "id": "BB-25",
+    "modul": "Check-in",
+    "skenario": "Petugas scan tiket valid untuk hari ini",
+    "input": "TKT-32UD7Z4BY3",
+    "harapan": "Check-in berhasil, status tiket used",
+    "aktual": "ok=true; Check-in berhasil. Silakan masuk.",
+    "status": "Berhasil"
+  },
+  {
+    "id": "BB-26",
+    "modul": "Check-in",
+    "skenario": "Scan ulang tiket yang sudah digunakan",
+    "input": "TKT-32UD7Z4BY3",
+    "harapan": "Ditolak: tiket sudah digunakan",
+    "aktual": "code=USED",
+    "status": "Berhasil"
+  },
+  {
+    "id": "BB-27",
+    "modul": "Check-in",
+    "skenario": "Scan QR dengan kode palsu",
+    "input": "TKT-PALSU12345",
+    "harapan": "Ditolak: tiket tidak ditemukan",
+    "aktual": "HTTP 404, code=NOT_FOUND",
+    "status": "Berhasil"
+  },
+  {
+    "id": "BB-28",
+    "modul": "Check-in",
+    "skenario": "Scan tiket untuk tanggal kunjungan besok",
+    "input": "TKT-QPMX57VQD7",
+    "harapan": "Ditolak: bukan tanggal kunjungan",
+    "aktual": "code=WRONG_DATE",
+    "status": "Berhasil"
+  },
+  {
+    "id": "BB-29",
+    "modul": "Hak akses",
+    "skenario": "Wisatawan memanggil API check-in",
+    "input": "POST /api/checkin (role user)",
+    "harapan": "Ditolak (403)",
+    "aktual": "HTTP 403",
+    "status": "Berhasil"
+  },
+  {
+    "id": "BB-30",
+    "modul": "E-Queue",
+    "skenario": "Petugas memanggil antrian berikutnya",
+    "input": "POST /petugas/antrian/panggil",
+    "harapan": "Satu antrian berstatus called",
+    "aktual": "antrian dipanggil = 1",
+    "status": "Berhasil"
+  },
+  {
+    "id": "BB-31",
+    "modul": "E-Queue",
+    "skenario": "Papan antrian publik menampilkan nomor dipanggil",
+    "input": "GET /api/antrian",
+    "harapan": "Ada destinasi dengan nomor \"sedang dilayani\"",
+    "aktual": "1 destinasi menampilkan nomor",
+    "status": "Berhasil"
+  },
+  {
+    "id": "BB-32",
+    "modul": "CRUD Destinasi",
+    "skenario": "Tambah destinasi dengan jam tutup lebih awal dari jam buka",
+    "input": "buka 17:00, tutup 08:00",
+    "harapan": "Ditolak dengan pesan validasi",
+    "aktual": "HTTP 400",
+    "status": "Berhasil"
+  },
+  {
+    "id": "BB-33",
+    "modul": "CRUD Destinasi",
+    "skenario": "Admin mengubah destinasi",
+    "input": "harga dewasa 1000 → 2000",
+    "harapan": "Data terbarui",
+    "aktual": "harga=2000",
+    "status": "Berhasil"
+  },
+  {
+    "id": "BB-34",
+    "modul": "CRUD Destinasi",
+    "skenario": "Hapus destinasi yang sudah punya transaksi",
+    "input": "DELETE Istana Maimun",
+    "harapan": "Ditolak (data historis dilindungi)",
+    "aktual": "masih ada = true",
+    "status": "Berhasil"
+  },
+  {
+    "id": "BB-35",
+    "modul": "CRUD Destinasi",
+    "skenario": "Hapus destinasi tanpa transaksi",
+    "input": "DELETE destinasi uji",
+    "harapan": "Terhapus",
+    "aktual": "terhapus = true",
+    "status": "Berhasil"
+  },
+  {
+    "id": "BB-36",
+    "modul": "Laporan",
+    "skenario": "Ekspor laporan kunjungan ke CSV",
+    "input": "GET /admin/laporan?format=csv",
+    "harapan": "File CSV terunduh dengan header kolom",
+    "aktual": "HTTP 200; text/csv; charset=utf-8",
+    "status": "Berhasil"
+  },
+  {
+    "id": "BB-37",
+    "modul": "Dashboard",
+    "skenario": "Dashboard admin menampilkan grafik harian & mingguan",
+    "input": "GET /admin",
+    "harapan": "Halaman memuat 3 grafik",
+    "aktual": "HTTP 200; canvas=3",
+    "status": "Berhasil"
+  },
+  {
+    "id": "BB-41",
+    "modul": "Kelola Pesanan",
+    "skenario": "Petugas melunasi pesanan (bayar tunai di loket)",
+    "input": "POST /petugas/pesanan/:kode/aksi aksi=lunas",
+    "harapan": "Status lunas, e-tiket dan nomor antrian terbit",
+    "aktual": "status = paid",
+    "status": "Berhasil"
+  },
+  {
+    "id": "BB-42",
+    "modul": "Kelola Pesanan",
+    "skenario": "Petugas tidak boleh membatalkan pesanan yang sudah lunas",
+    "input": "aksi=batal pada pesanan lunas",
+    "harapan": "Ditolak, status tetap lunas",
+    "aktual": "status = paid",
+    "status": "Berhasil"
+  },
+  {
+    "id": "BB-43",
+    "modul": "Kelola Pesanan",
+    "skenario": "Admin membatalkan pesanan lunas (refund)",
+    "input": "POST /admin/transaksi/:kode/aksi aksi=batal",
+    "harapan": "Status batal, e-tiket dan antrian dicabut, pembayaran tidak dihitung",
+    "aktual": "status = cancelled; tiket dicabut = true",
+    "status": "Berhasil"
+  },
+  {
+    "id": "BB-44",
+    "modul": "Kelola Pesanan",
+    "skenario": "Admin mengaktifkan kembali pesanan yang dibatalkan",
+    "input": "aksi=aktifkan",
+    "harapan": "Status kembali menunggu pembayaran",
+    "aktual": "status = pending",
+    "status": "Berhasil"
+  },
+  {
+    "id": "BB-45",
+    "modul": "Kelola Pesanan",
+    "skenario": "Petugas tidak boleh mengaktifkan kembali pesanan",
+    "input": "aksi=aktifkan oleh petugas pada pesanan batal",
+    "harapan": "Ditolak, status tetap batal",
+    "aktual": "sebelum = cancelled; sesudah = cancelled",
+    "status": "Berhasil"
+  },
+  {
+    "id": "BB-46",
+    "modul": "Kelola Pesanan",
+    "skenario": "Setiap perubahan status tercatat di riwayat",
+    "input": "GET /admin/transaksi/:kode",
+    "harapan": "Halaman detail memuat riwayat perubahan",
+    "aktual": "HTTP 200; log = 5",
+    "status": "Berhasil"
+  },
+  {
+    "id": "BB-47",
+    "modul": "Kelola Pesanan",
+    "skenario": "Wisatawan tidak boleh mengubah status pesanan",
+    "input": "POST /admin/transaksi/:kode/aksi oleh wisatawan",
+    "harapan": "Ditolak (403/redirect)",
+    "aktual": "HTTP 403; status = pending",
+    "status": "Berhasil"
+  },
+  {
+    "id": "BB-48",
+    "modul": "Kelola Pesanan",
+    "skenario": "Petugas mencari pesanan berdasarkan kode",
+    "input": "GET /petugas/pesanan?q=kode",
+    "harapan": "Pesanan ditemukan dan tombol aksi tampil",
+    "aktual": "HTTP 200",
+    "status": "Berhasil"
+  },
+  {
+    "id": "BB-49",
+    "modul": "Kelola Pesanan",
+    "skenario": "Admin mencari transaksi berdasarkan kode",
+    "input": "GET /admin/transaksi?q=kode",
+    "harapan": "Hanya pesanan terkait yang tampil",
+    "aktual": "HTTP 200",
+    "status": "Berhasil"
+  },
+  {
+    "id": "BB-60",
+    "modul": "Jadwal Ulang",
+    "skenario": "Admin menjadwal ulang pesanan yang menunggu bayar",
+    "input": "POST /admin/transaksi/:kode/jadwal",
+    "harapan": "Tanggal dan sesi berubah",
+    "aktual": "jadwal = 2026-10-24 08:00 - 10:00",
+    "status": "Berhasil"
+  },
+  {
+    "id": "BB-61",
+    "modul": "Jadwal Ulang",
+    "skenario": "Jadwal ulang pesanan lunas memindahkan nomor antrian ke tanggal baru",
+    "input": "jadwal pada pesanan lunas",
+    "harapan": "Antrian dibuat ulang di tanggal baru, e-tiket tetap",
+    "aktual": "antrian 2026-10-24 -> 2026-10-23",
+    "status": "Berhasil"
+  },
+  {
+    "id": "BB-62",
+    "modul": "Jadwal Ulang",
+    "skenario": "Jadwal ulang ke tanggal yang sudah lewat ditolak",
+    "input": "date = kemarin",
+    "harapan": "Ditolak, jadwal tetap",
+    "aktual": "jadwal = 2026-10-23",
+    "status": "Berhasil"
+  },
+  {
+    "id": "BB-63",
+    "modul": "Jadwal Ulang",
+    "skenario": "Sesi di luar jam operasional ditolak",
+    "input": "slot = 03:00 - 04:00",
+    "harapan": "Ditolak, jadwal tetap",
+    "aktual": "jadwal = 2026-10-23",
+    "status": "Berhasil"
+  },
+  {
+    "id": "BB-64",
+    "modul": "Jadwal Ulang",
+    "skenario": "Petugas tidak boleh menjadwal ulang pesanan",
+    "input": "POST jadwal oleh petugas",
+    "harapan": "Ditolak (403), jadwal tetap",
+    "aktual": "HTTP 403; jadwal = 2026-10-23",
+    "status": "Berhasil"
+  },
+  {
+    "id": "BB-50",
+    "modul": "Foto Destinasi",
+    "skenario": "Admin mengunggah foto JPG destinasi",
+    "input": "POST /admin/wisata/:id/foto (JPEG)",
+    "harapan": "Foto tersimpan sebagai ZZ.jpg",
+    "aktual": "HTTP 200; berkas ada = true",
+    "status": "Berhasil"
+  },
+  {
+    "id": "BB-51",
+    "modul": "Foto Destinasi",
+    "skenario": "Unggah berkas yang bukan JPEG ditolak",
+    "input": "Berkas teks bernama .jpg",
+    "harapan": "Ditolak (400)",
+    "aktual": "HTTP 400",
+    "status": "Berhasil"
+  },
+  {
+    "id": "BB-52",
+    "modul": "Foto Destinasi",
+    "skenario": "Wisatawan tidak boleh mengunggah foto destinasi",
+    "input": "POST foto oleh wisatawan",
+    "harapan": "Ditolak (403/redirect)",
+    "aktual": "HTTP 403",
+    "status": "Berhasil"
+  },
+  {
+    "id": "BB-53",
+    "modul": "Foto Destinasi",
+    "skenario": "Admin menghapus foto destinasi",
+    "input": "POST /admin/wisata/:id/foto/hapus",
+    "harapan": "Berkas foto terhapus",
+    "aktual": "berkas ada = false",
+    "status": "Berhasil"
+  },
+  {
+    "id": "BB-54",
+    "modul": "Keamanan",
+    "skenario": "Halaman login tidak membocorkan akun demo",
+    "input": "GET /login",
+    "harapan": "Tidak ada email/password demo di HTML",
+    "aktual": "HTTP 200",
+    "status": "Berhasil"
+  },
+  {
+    "id": "BB-55",
+    "modul": "Akun Saya",
+    "skenario": "Pengguna mengubah nama dan nomor HP",
+    "input": "POST /akun/profil",
+    "harapan": "Data profil tersimpan",
+    "aktual": "HTTP 302; nama = Akun Uji Baru; hp = 081234567890",
+    "status": "Berhasil"
+  },
+  {
+    "id": "BB-56",
+    "modul": "Akun Saya",
+    "skenario": "Validasi profil: nama pendek dan HP bukan angka",
+    "input": "POST /akun/profil nama=\"Ab\"",
+    "harapan": "Ditolak (400), data tidak berubah",
+    "aktual": "HTTP 400",
+    "status": "Berhasil"
+  },
+  {
+    "id": "BB-57",
+    "modul": "Akun Saya",
+    "skenario": "Ganti password dengan password lama yang salah ditolak",
+    "input": "POST /akun/password current salah",
+    "harapan": "Ditolak (400), password tidak berubah",
+    "aktual": "HTTP 400",
+    "status": "Berhasil"
+  },
+  {
+    "id": "BB-58",
+    "modul": "Akun Saya",
+    "skenario": "Ganti password berhasil, password lama tidak berlaku lagi",
+    "input": "POST /akun/password lalu login ulang",
+    "harapan": "Login password lama gagal, password baru berhasil",
+    "aktual": "lama = HTTP 401; baru = HTTP 302",
+    "status": "Berhasil"
+  },
+  {
+    "id": "BB-59",
+    "modul": "Akun Saya",
+    "skenario": "Halaman akun tidak dapat dibuka tanpa login",
+    "input": "GET /akun tanpa sesi",
+    "harapan": "Diarahkan ke halaman login",
+    "aktual": "HTTP 302; ke /login",
+    "status": "Berhasil"
+  },
+  {
+    "id": "BB-65A",
+    "modul": "Akun uji",
+    "skenario": "Login \"Tiwy as Admin\"",
+    "input": "admin@smarttour.id / admin123",
+    "harapan": "Diarahkan ke /admin",
+    "aktual": "HTTP 302 → /admin",
+    "status": "Berhasil"
+  },
+  {
+    "id": "BB-65P",
+    "modul": "Akun uji",
+    "skenario": "Login \"Tiwy as Petugas\"",
+    "input": "petugas@smarttour.id / petugas123",
+    "harapan": "Diarahkan ke /petugas",
+    "aktual": "HTTP 302 → /petugas",
+    "status": "Berhasil"
+  },
+  {
+    "id": "BB-65P",
+    "modul": "Akun uji",
+    "skenario": "Login \"Tiwy as Pengunjung\"",
+    "input": "pengunjung@smarttour.id / pengunjung123",
+    "harapan": "Diarahkan ke /",
+    "aktual": "HTTP 302 → /",
+    "status": "Berhasil"
+  },
+  {
+    "id": "BB-66",
+    "modul": "Data awal",
+    "skenario": "Tiga akun uji tersedia dengan peran berbeda",
+    "input": "admin, petugas, user",
+    "harapan": "3 akun, peran admin/petugas/user",
+    "aktual": "3 akun",
+    "status": "Berhasil"
+  },
+  {
+    "id": "BB-67",
+    "modul": "Data awal",
+    "skenario": "Data awal ringkas",
+    "input": "seed",
+    "harapan": "Destinasi bawaan 6 buah",
+    "aktual": "destinasi bawaan: 6",
+    "status": "Berhasil"
+  },
+  {
+    "id": "BB-68",
+    "modul": "Akun uji",
+    "skenario": "Halaman utama tiap peran terbuka (petugas: pesanan, pengunjung: tiket)",
+    "input": "GET /petugas/pesanan, GET /tiket",
+    "harapan": "HTTP 200 keduanya",
+    "aktual": "petugas 200; pengunjung 200",
+    "status": "Berhasil"
+  },
+  {
+    "id": "BB-69",
+    "modul": "Hak akses",
+    "skenario": "Pengunjung ke /petugas dan petugas ke /admin ditolak",
+    "input": "GET /petugas (pengunjung), GET /admin (petugas)",
+    "harapan": "HTTP 403 keduanya",
+    "aktual": "403; 403",
+    "status": "Berhasil"
+  },
+  {
+    "id": "BB-70",
+    "modul": "Hak akses",
+    "skenario": "Peran diturunkan admin langsung berlaku tanpa login ulang",
+    "input": "ubah petugas → pengunjung, akses /petugas",
+    "harapan": "Sebelum 200, sesudah 403",
+    "aktual": "sebelum 200; sesudah 403",
+    "status": "Berhasil"
+  },
+  {
+    "id": "BB-71",
+    "modul": "Hak akses",
+    "skenario": "Akun yang dihapus admin otomatis keluar",
+    "input": "hapus akun lalu GET /tiket",
+    "harapan": "Diarahkan ke /login",
+    "aktual": "HTTP 302 → /login",
+    "status": "Berhasil"
+  },
+  {
+    "id": "BB-38",
+    "modul": "Keamanan",
+    "skenario": "POST tanpa token CSRF",
+    "input": "POST /pesan tanpa _csrf",
+    "harapan": "Ditolak (403)",
+    "aktual": "HTTP 403",
+    "status": "Berhasil"
+  },
+  {
+    "id": "BB-39",
+    "modul": "Keamanan",
+    "skenario": "Input mengandung tag script (XSS)",
+    "input": "<script>alert(1)</script>",
+    "harapan": "Output di-escape, script tidak dieksekusi",
+    "aktual": "Tag di-escape",
+    "status": "Berhasil"
+  },
+  {
+    "id": "BB-40",
+    "modul": "Keamanan",
+    "skenario": "Brute force: 5x gagal lalu login benar",
+    "input": "5 kali password salah",
+    "harapan": "Akun dikunci sementara (429)",
+    "aktual": "HTTP 429",
+    "status": "Berhasil"
+  }
+]

@@ -1,0 +1,29 @@
+<%- include('../partials/header') %>
+<div class="container py-4">
+  <div class="page-head">
+    <div class="ph-ico"><i class="bi bi-people"></i></div>
+    <div class="ph-t"><h1>Kelola pengguna</h1><p><%= rows.length %> akun &middot; admin, petugas loket, dan pengunjung.</p></div>
+    <div class="ph-act"><a href="/admin/pengguna/baru" class="btn btn-gold"><i class="bi bi-person-plus me-1"></i>Tambah pengguna</a></div>
+  </div>
+  <% const cnt = r => rows.filter(x => x.role === r).length; %>
+  <div class="tabs-lite" id="roleTabs">
+    <a href="#" class="on" data-role="">Semua <b><%= rows.length %></b></a><a href="#" data-role="admin">Admin <b><%= cnt('admin') %></b></a><a href="#" data-role="petugas">Petugas <b><%= cnt('petugas') %></b></a><a href="#" data-role="user">Pengunjung <b><%= cnt('user') %></b></a>
+  </div>
+  <div class="panel p-0 overflow-hidden"><div class="table-responsive"><table class="table table-hover align-middle mb-0" id="userTable">
+    <thead><tr><th>Pengguna</th><th>No. HP</th><th>Peran</th><th class="text-end">Pesanan</th><th>Terdaftar</th><th></th></tr></thead>
+    <tbody><% const COL = ['#0f5c4d', '#c98a00', '#1d6fa5', '#a3262a', '#3f6f2a', '#7a4e2d']; rows.forEach(r => { %><tr data-role="<%= r.role %>">
+      <td><div class="d-flex align-items-center gap-2"><span class="av-sm" style="background:<%= COL[r.id % COL.length] %>"><%= r.name.charAt(0).toUpperCase() %></span><div><div class="fw-bold"><%= r.name %></div><div class="small text-muted"><%= r.email %></div></div></div></td>
+      <td class="small"><%= r.phone || '-' %></td>
+      <td><span class="role-pill role-<%= r.role %>"><%= {admin:'Admin', petugas:'Petugas', user:'Pengunjung'}[r.role] %></span></td><td class="text-end"><%= r.bookings %></td><td class="small"><%= U.tanggalPendek(r.created_at) %></td>
+      <td class="text-end text-nowrap"><a class="btn btn-sm btn-outline-green" href="/admin/pengguna/<%= r.id %>/edit" aria-label="Ubah"><i class="bi bi-pencil"></i></a>
+        <form method="post" action="/admin/pengguna/<%= r.id %>/hapus" class="d-inline" onsubmit="return confirm('Hapus pengguna ini?')"><%- csrfField %><button class="btn btn-sm btn-outline-danger" aria-label="Hapus"><i class="bi bi-trash"></i></button></form></td></tr><% }) %>
+    </tbody>
+  </table></div></div>
+</div>
+<script>
+document.querySelectorAll('#roleTabs a').forEach(function (a) { a.addEventListener('click', function (e) {
+  e.preventDefault(); document.querySelectorAll('#roleTabs a').forEach(function (x) { x.classList.toggle('on', x === a); });
+  document.querySelectorAll('#userTable tbody tr').forEach(function (tr) { tr.hidden = a.dataset.role && tr.dataset.role !== a.dataset.role; });
+}); });
+</script>
+<%- include('../partials/footer') %>

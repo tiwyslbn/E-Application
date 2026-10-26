@@ -1,0 +1,37 @@
+<%- include('../partials/header') %>
+<div class="container py-4" style="max-width:920px">
+  <h3 class="section-title mb-4">Pembayaran</h3>
+  <div class="row g-4">
+    <div class="col-md-5">
+      <div class="panel">
+        <h6 class="mb-3">Ringkasan Pesanan</h6>
+        <div class="small text-muted">Kode pesanan</div><div class="fw-bold mb-2"><%= b.code %></div>
+        <div class="small text-muted">Destinasi</div><div class="fw-bold mb-2"><%= b.dest_name %></div>
+        <div class="small text-muted">Kunjungan</div><div class="fw-bold mb-2"><%= U.tanggal(b.visit_date) %><br><span class="fw-normal"><%= b.visit_slot %> WIB</span></div>
+        <div class="small text-muted">Tiket</div><div class="fw-bold mb-2"><%= b.qty_adult %> dewasa<%= b.qty_child ? ', ' + b.qty_child + ' anak' : '' %></div>
+        <hr>
+        <div class="d-flex justify-content-between"><span>Total</span><span class="fs-4 fw-bold text-green"><%= U.rupiah(b.total) %></span></div>
+        <div class="alert alert-warning small mt-3 mb-0"><i class="bi bi-alarm me-1"></i>Selesaikan pembayaran sebelum <strong><%= b.expires_at.slice(11, 16) %> WIB</strong>.</div>
+      </div>
+    </div>
+    <div class="col-md-7">
+      <div class="panel">
+        <h6 class="mb-3">Pilih Metode Pembayaran</h6>
+        <form method="post" action="/bayar/<%= b.code %>">
+          <%- csrfField %>
+          <div class="row g-2 mb-3">
+            <% methods.forEach((m, i) => { %>
+              <div class="col-6"><input type="radio" class="btn-check" name="method" id="m<%= i %>" value="<%= m %>" <%= (pay ? pay.method === m : i === 0) ? 'checked' : '' %>>
+                <label class="btn btn-outline-green w-100 text-start py-3" for="m<%= i %>"><i class="bi <%= m === 'QRIS' ? 'bi-qr-code' : m.startsWith('Virtual') ? 'bi-bank' : 'bi-wallet2' %> me-2"></i><%= m %></label></div>
+            <% }) %>
+          </div>
+          <button class="btn btn-gold btn-lg w-100"><i class="bi bi-credit-card me-1"></i>Bayar Sekarang</button>
+        </form>
+        <form method="post" action="/bayar/<%= b.code %>/batal" class="mt-2" onsubmit="return confirm('Batalkan pesanan ini?')">
+          <%- csrfField %><button class="btn btn-link text-danger w-100 btn-sm">Batalkan pesanan</button></form>
+        <div class="form-text">Pembayaran bersifat simulasi (sandbox). Tidak ada uang sungguhan yang diproses.</div>
+      </div>
+    </div>
+  </div>
+</div>
+<%- include('../partials/footer') %>

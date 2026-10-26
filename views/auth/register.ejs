@@ -1,0 +1,21 @@
+<%- include('../partials/header') %>
+<div class="container"><div class="auth-shell">
+  <div class="auth-art"><h2>Mulai dari satu akun</h2><p>Pesan tiket, bayar online, dan simpan e-tiket di ponselmu.</p><%- include('../partials/auth_photos') %></div>
+  <div class="auth-form">
+    <h1>Daftar akun</h1><p class="text-muted">Khusus pengunjung</p>
+    <% if (errors.length) { %><div class="alert alert-danger small"><ul class="mb-0 ps-3"><% errors.forEach(e => { %><li><%= e %></li><% }) %></ul></div><% } %>
+    <form method="post" action="/register" novalidate>
+      <%- csrfField %>
+      <div class="mb-3"><label class="form-label" for="f-name">Nama lengkap</label><input id="f-name" name="name" class="form-control" value="<%= form.name || '' %>" required></div>
+      <div class="mb-3"><label class="form-label" for="f-email">Email</label><input id="f-email" type="email" name="email" class="form-control" value="<%= form.email || '' %>" required></div>
+      <div class="mb-3"><label class="form-label" for="f-phone">No. HP</label><input id="f-phone" name="phone" class="form-control" value="<%= form.phone || '' %>" placeholder="08xxxxxxxxxx"></div>
+      <div class="row g-2 mb-3">
+        <div class="col-6"><label class="form-label" for="f-password">Password</label><input id="f-password" type="password" name="password" class="form-control" required></div>
+        <div class="col-6"><label class="form-label" for="f-confirm">Ulangi password</label><input id="f-confirm" type="password" name="confirm" class="form-control" required></div>
+      </div>
+      <button class="btn btn-green btn-lg w-100">Daftar</button>
+    </form>
+    <div class="text-center small mt-3">Sudah punya akun? <a href="/login">Masuk</a></div>
+  </div>
+</div></div>
+<%- include('../partials/footer') %>

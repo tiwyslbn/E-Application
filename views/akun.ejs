@@ -1,0 +1,27 @@
+<%- include('partials/header') %>
+<div class="container py-4" style="max-width:920px">
+  <div class="page-head">
+    <div class="ph-ico"><i class="bi bi-person-gear"></i></div>
+    <div class="ph-t"><h1>Akun saya</h1><p><%= me.email %> &middot; <%= {admin:'Administrator', petugas:'Petugas loket', user:'Pengunjung'}[me.role] %> &middot; bergabung <%= U.tanggalPendek(me.created_at) %></p></div>
+  </div>
+  <div class="row g-4">
+    <div class="col-md-6"><form class="panel h-100" method="post" action="/akun/profil" novalidate>
+      <%- csrfField %><h6 class="mb-3"><i class="bi bi-person me-1"></i>Profil</h6>
+      <% if (errProfil.length) { %><div class="alert alert-danger py-2 small"><ul class="mb-0 ps-3"><% errProfil.forEach(e => { %><li><%= e %></li><% }) %></ul></div><% } %>
+      <% const f = (typeof form !== 'undefined' && form) ? form : me; %>
+      <div class="mb-3"><label class="form-label" for="name">Nama lengkap</label><input id="name" name="name" class="form-control" value="<%= f.name %>" required></div>
+      <div class="mb-3"><label class="form-label" for="phone">No. HP</label><input id="phone" name="phone" class="form-control" value="<%= f.phone || '' %>" placeholder="08xxxxxxxxxx"></div>
+      <div class="mb-4"><label class="form-label" for="emailView">Email</label><input id="emailView" class="form-control" value="<%= me.email %>" disabled><div class="form-text">Email dipakai untuk login dan tidak dapat diubah.</div></div>
+      <button class="btn btn-green">Simpan profil</button>
+    </form></div>
+    <div class="col-md-6"><form class="panel h-100" method="post" action="/akun/password" novalidate>
+      <%- csrfField %><h6 class="mb-3"><i class="bi bi-shield-lock me-1"></i>Ganti password</h6>
+      <% if (errPass.length) { %><div class="alert alert-danger py-2 small"><ul class="mb-0 ps-3"><% errPass.forEach(e => { %><li><%= e %></li><% }) %></ul></div><% } %>
+      <div class="mb-3"><label class="form-label" for="current">Password saat ini</label><input id="current" type="password" name="current" class="form-control" autocomplete="current-password" required></div>
+      <div class="mb-3"><label class="form-label" for="pw">Password baru</label><input id="pw" type="password" name="password" class="form-control" autocomplete="new-password" minlength="6" required><div class="form-text">Minimal 6 karakter.</div></div>
+      <div class="mb-4"><label class="form-label" for="cf">Ulangi password baru</label><input id="cf" type="password" name="confirm" class="form-control" autocomplete="new-password" required></div>
+      <button class="btn btn-outline-green">Ganti password</button>
+    </form></div>
+  </div>
+</div>
+<%- include('partials/footer') %>

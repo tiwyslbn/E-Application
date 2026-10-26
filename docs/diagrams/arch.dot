@@ -1,0 +1,15 @@
+digraph A {
+  graph [rankdir=LR, bgcolor=white, nodesep=0.5, ranksep=0.9, pad=0.3, fontname="Helvetica"];
+  node  [shape=box, style="rounded,filled", fontname="Helvetica", fontsize=11, fillcolor="#fff7da", color="#0f5c4d", penwidth=1.5, margin="0.2,0.12"];
+  edge  [fontname="Helvetica", fontsize=9.5, color="#4a5a55", penwidth=1.3];
+  subgraph cluster_c { label="Klien (Browser / PWA)"; style="rounded,dashed"; color="#7a4e2d"; fontname="Helvetica";
+    w [label="Wisatawan\nHP / Browser"]; s [label="Petugas\nScanner QR (kamera)"]; a [label="Admin\nDashboard & Laporan"]; }
+  subgraph cluster_s { label="Server Node.js + Express"; style="rounded"; color="#0f5c4d"; fontname="Helvetica";
+    r [label="Routes\n(public, auth, user,\nstaff, admin)", fillcolor="#e3f1ff"];
+    m [label="Middleware\nSession · Role · CSRF", fillcolor="#e3f1ff"];
+    l [label="Logika Bisnis (lib/booking)\nkuota · pembayaran · antrian · check-in", fillcolor="#d9f2e6"];
+    v [label="View EJS + Bootstrap 5\nChart.js · QR Code", fillcolor="#e3f1ff"]; }
+  db [label="SQLite\n(users, destinations, bookings,\npayments, tickets, queues)", shape=cylinder, fillcolor="#fde8e8"];
+  g  [label="Payment Gateway\n(Sandbox / simulasi)", fillcolor="#f0e6ff"];
+  w -> m [label="HTTP"]; s -> m; a -> m; m -> r; r -> l; r -> v; l -> db; l -> g [dir=both, style=dashed, label="callback sukses"];
+}

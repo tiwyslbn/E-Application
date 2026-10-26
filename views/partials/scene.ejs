@@ -1,0 +1,18 @@
+<%
+const PAL = { IM: ['#ffcf5c', '#fff3cf'], MR: ['#1f7a8c', '#c8ebe3'], MN: ['#9a6238', '#f6dfb8'], TF: ['#8a1f33', '#f8bf8f'], RW: ['#2f6b3a', '#d6ebb0'], DT: ['#1d6fa5', '#d4eefa'] };
+const pal = PAL[d.code] || [d.color, '#ffffff'];
+const noGround = d.code === 'DT';
+%>
+<% if (hasPhoto(d.code)) { %>
+  <img class="scene-photo" src="<%= photoUrl(d.code) %>" alt="<%= d.name %>" loading="lazy">
+<% } else { %>
+<div class="scene" style="background: linear-gradient(180deg, <%= pal[0] %>, <%= pal[1] %>);">
+  <svg viewBox="0 0 400 200" preserveAspectRatio="<%= (typeof mid !== 'undefined' && mid) ? 'xMidYMid slice' : 'xMidYMax slice' %>" class="scene-svg" aria-hidden="true">
+    <circle cx="322" cy="48" r="36" fill="#fff6c2" opacity=".28"/><circle class="sun" cx="322" cy="48" r="20" fill="#fff3b0"/>
+    <g class="cloud c1" fill="#fff" opacity=".8"><ellipse cx="60" cy="38" rx="26" ry="8"/><ellipse cx="78" cy="32" rx="16" ry="8"/></g>
+    <g class="cloud c2" fill="#fff" opacity=".6"><ellipse cx="230" cy="22" rx="22" ry="6"/><ellipse cx="246" cy="17" rx="13" ry="6"/></g>
+    <% if (!noGround) { %><rect x="0" y="168" width="400" height="40" fill="#10291f" opacity=".9"/><path d="M0 170 Q60 158 130 168 T260 166 T400 164 V200 H0Z" fill="#17402f"/><% } %>
+    <%- include('landmark', { code: d.code }) %>
+  </svg>
+</div>
+<% } %>

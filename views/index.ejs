@@ -1,0 +1,88 @@
+<%- include('partials/header') %>
+<section class="hero">
+  <div class="container hero-inner">
+    <div class="hero-copy">
+      <h1 class="hero-title">Jelajahi Medan,<br>tanpa antre panjang.</h1>
+      <p class="hero-sub">Pesan e-tiket Istana Maimun, Masjid Raya Al-Mashun, museum, hingga tur Danau Toba. Bayar online, dapat nomor antrian digital, lalu masuk dengan scan QR.</p>
+      <form class="hero-search" method="get" action="/wisata">
+        <label class="hs-field"><i class="bi bi-search"></i><input name="q" placeholder="Cari destinasi" aria-label="Cari destinasi"></label>
+        <label class="hs-field"><i class="bi bi-grid"></i><select name="kategori" aria-label="Kategori"><option value="">Semua kategori</option><% categories.forEach(c => { %><option><%= c %></option><% }) %></select></label>
+        <button class="btn btn-gold">Cari wisata</button>
+      </form>
+      <div class="hero-stats">
+        <div><span class="n" data-count="<%= stats.destinasi %>"><%= stats.destinasi %></span><span class="l">Destinasi</span></div>
+        <div><span class="n" data-count="<%= stats.tiketHariIni %>"><%= stats.tiketHariIni %></span><span class="l">Tiket hari ini</span></div>
+        <div><span class="n" data-count="<%= stats.wisatawan %>"><%= stats.wisatawan %></span><span class="l">Pengunjung terdaftar</span></div>
+      </div>
+    </div>
+    <div class="hero-art" role="group" aria-roledescription="carousel" aria-label="Destinasi unggulan">
+      <div class="reel" id="reel" data-interval="5500">
+        <% destinations.forEach((d, i) => { %>
+          <a class="slide <%= i === 0 ? 'on' : '' %>" href="/wisata/<%= d.id %>" aria-label="<%= d.name %>" <%- i === 0 ? '' : 'tabindex="-1" aria-hidden="true"' %>>
+            <% if (hasPhoto(d.code)) { %><img class="ph" src="<%= photoUrl(d.code) %>" alt="" <%- i === 0 ? 'fetchpriority="high"' : 'loading="lazy"' %> style="--ko: <%= ['50% 60%', '30% 40%', '70% 50%', '40% 70%'][i % 4] %>"><% } else { %><%- include('partials/scene', { d, mid: true }) %><% } %>
+            <div class="shade"></div>
+            <div class="cap">
+              <span class="cat"><%= d.category %></span>
+              <h2><%= d.name %></h2>
+              <p>Mulai dari <b><%= U.rupiah(Math.min(d.price_adult, d.price_child || d.price_adult)) %></b> &middot; <%= d.open_time %>-<%= d.close_time %> WIB</p>
+            </div>
+          </a>
+        <% }) %>
+        <div class="reel-nav" role="tablist" aria-label="Pilih destinasi">
+          <% destinations.forEach((d, i) => { %><button type="button" role="tab" aria-label="<%= d.name %>" aria-selected="<%= i === 0 %>" data-go="<%= i %>"></button><% }) %>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="hero-edge"></div>
+</section>
+
+<div class="container py-5">
+  <div class="sec-head"><h2>Mau ke mana hari ini?</h2><p>Pilih destinasi, tentukan sesi kunjungan, dan amankan tiketmu sebelum kuota habis.</p></div>
+  <div class="row g-4">
+    <% destinations.forEach(d => { %><div class="col-md-6 col-lg-4"><%- include('partials/destcard', {d}) %></div><% }) %>
+  </div>
+</div>
+
+<section class="band">
+  <div class="container py-5">
+    <div class="sec-head"><h2>Dari pesan sampai masuk</h2><p>Empat langkah, semuanya dari ponsel.</p></div>
+    <ol class="flow">
+      <% [['Pilih wisata','Lihat harga, jam buka, dan sisa kuota.','bi-compass'],['Pesan dan bayar','Pilih tanggal dan sesi, lalu bayar online.','bi-credit-card-2-front'],['Terima e-tiket','QR Code dan nomor antrian terbit otomatis.','bi-qr-code'],['Check-in','Petugas memindai QR, kamu langsung masuk.','bi-check2-circle']].forEach((s, i) => { %>
+        <li><div class="ico"><i class="bi <%= s[2] %>"></i><b><%= i + 1 %></b></div><h6><%= s[0] %></h6><p><%= s[1] %></p></li>
+      <% }) %>
+    </ol>
+  </div>
+</section>
+
+<div class="container py-5">
+  <div class="sec-head"><h2>Wisata lebih tertib dan cepat</h2></div>
+  <div class="perks">
+    <% [['bi-ticket-perforated-fill','E-tiket QR Code','Tiket digital yang aman, tidak mudah hilang atau dipalsukan.'],
+        ['bi-hourglass-split','Antrian real-time','Nomor antrian otomatis, statusnya bisa dipantau dari HP.'],
+        ['bi-wallet2','Bayar elektronik','QRIS, Virtual Account, dan e-wallet dalam satu alur.'],
+        ['bi-bar-chart-fill','Data kunjungan','Dashboard harian dan mingguan membantu pengelola mengambil keputusan.']].forEach(f => { %>
+      <div class="perk"><div class="pi"><i class="bi <%= f[0] %>"></i></div><div><h6><%= f[1] %></h6><p><%= f[2] %></p></div></div>
+    <% }) %>
+  </div>
+</div>
+
+<div class="container pb-5">
+  <section class="install">
+    <div>
+      <h2>Pasang di HP atau laptop</h2>
+      <p>Buka langsung dari layar utama tanpa mengetik alamat. E-tiket yang sudah dibuka tetap bisa ditampilkan saat sinyal lemah di lokasi wisata.</p>
+      <div class="acts">
+        <button type="button" class="btn btn-gold btn-lg" data-install hidden><i class="bi bi-download me-1"></i>Pasang aplikasi</button>
+        <a href="/wisata" class="btn btn-ghost btn-lg">Lihat destinasi</a>
+      </div>
+      <p class="small mt-3 mb-0" data-install-note></p>
+    </div>
+    <div class="mini-ticket" aria-hidden="true">
+      <div class="mt-h">Istana Maimun</div><div class="mt-s">Sabtu, 10.00 WIB &middot; 2 dewasa</div>
+      <div class="mt-q">IM-012</div><div class="mt-s">Nomor antrian</div>
+      <div class="mt-bar"></div>
+    </div>
+  </section>
+</div>
+<%- include('partials/footer') %>

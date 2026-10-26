@@ -1,0 +1,62 @@
+<%- include('../partials/header') %>
+<div class="container py-4">
+  <div class="page-head">
+    <div class="ph-ico"><i class="bi bi-<%= editId ? 'pencil-square' : 'plus-square' %>"></i></div>
+    <div class="ph-t"><h1><%= title %></h1><p><%= editId ? 'Ubah data dan foto destinasi.' : 'Isi data destinasi baru. Foto dapat diunggah setelah disimpan.' %></p></div>
+  </div>
+  <div class="row g-4"><div class="col-xl-8">
+  <% if (errors.length) { %><div class="alert alert-danger"><ul class="mb-0 ps-3"><% errors.forEach(e => { %><li><%= e %></li><% }) %></ul></div><% } %>
+  <form method="post" action="<%= editId ? '/admin/wisata/' + editId : '/admin/wisata' %>" class="panel" novalidate>
+    <%- csrfField %>
+    <div class="row g-3">
+      <div class="col-md-3"><label class="form-label" for="f-code">Kode</label><input id="f-code" name="code" class="form-control text-uppercase" maxlength="4" value="<%= f.code || '' %>" required></div>
+      <div class="col-md-5"><label class="form-label" for="f-name">Nama destinasi</label><input id="f-name" name="name" class="form-control" value="<%= f.name || '' %>" required></div>
+      <div class="col-md-4"><label class="form-label" for="f-category">Kategori</label><input id="f-category" name="category" class="form-control" value="<%= f.category || '' %>" required></div>
+      <div class="col-12"><label class="form-label" for="f-description">Deskripsi</label><textarea id="f-description" name="description" rows="3" class="form-control"><%= f.description || '' %></textarea></div>
+      <div class="col-12"><label class="form-label" for="f-address">Alamat</label><input id="f-address" name="address" class="form-control" value="<%= f.address || '' %>"></div>
+      <div class="col-md-3"><label class="form-label" for="f-open_time">Jam buka</label><input id="f-open_time" type="time" name="open_time" class="form-control" value="<%= f.open_time %>" required></div>
+      <div class="col-md-3"><label class="form-label" for="f-close_time">Jam tutup</label><input id="f-close_time" type="time" name="close_time" class="form-control" value="<%= f.close_time %>" required></div>
+      <div class="col-md-3"><label class="form-label" for="f-slot_hours">Durasi sesi (jam)</label><input id="f-slot_hours" type="number" name="slot_hours" min="1" max="12" class="form-control" value="<%= f.slot_hours %>"></div>
+      <div class="col-md-3"><label class="form-label" for="f-daily_quota">Kuota harian</label><input id="f-daily_quota" type="number" name="daily_quota" min="1" class="form-control" value="<%= f.daily_quota %>"></div>
+      <div class="col-md-3"><label class="form-label" for="f-price_adult">Harga dewasa (Rp)</label><input id="f-price_adult" type="number" name="price_adult" min="0" class="form-control" value="<%= f.price_adult %>"></div>
+      <div class="col-md-3"><label class="form-label" for="f-price_child">Harga anak (Rp)</label><input id="f-price_child" type="number" name="price_child" min="0" class="form-control" value="<%= f.price_child %>"></div>
+      <div class="col-md-3"><label class="form-label" for="f-icon">Ikon</label><select id="f-icon" name="icon" class="form-select"><% icons.forEach(i => { %><option value="<%= i %>" <%= f.icon === i ? 'selected' : '' %>><%= i.replace('bi-', '') %></option><% }) %></select></div>
+      <div class="col-md-3"><label class="form-label" for="f-color">Warna</label><input id="f-color" type="color" name="color" class="form-control form-control-color w-100" value="<%= f.color %>"></div>
+      <div class="col-12"><div class="form-check form-switch"><input class="form-check-input" type="checkbox" name="is_active" id="act" <%= f.is_active ? 'checked' : '' %>><label class="form-check-label" for="act">Destinasi aktif (tampil di aplikasi)</label></div></div>
+    </div>
+    <div class="mt-4 d-flex gap-2"><button class="btn btn-green px-4">Simpan</button><a href="/admin/wisata" class="btn btn-outline-secondary">Batal</a></div>
+  </form>
+  </div>
+  <div class="col-xl-4">
+    <div class="panel uploader">
+      <h6 class="mb-3"><i class="bi bi-image me-1"></i>Foto destinasi</h6>
+      <% if (editId) { %>
+        <div class="preview" id="prev"><% if (hasPhoto(f.code)) { %><img src="<%= photoUrl(f.code) %>" alt="Foto <%= f.name %>"><% } else { %><span>Belum ada foto.<br>Ilustrasi bawaan dipakai.</span><% } %></div>
+        <input type="file" id="fileFoto" accept="image/jpeg" class="d-none">
+        <div class="d-flex gap-2 mt-3"><button type="button" class="btn btn-outline-green flex-fill" id="btnPilih"><i class="bi bi-upload me-1"></i>Unggah foto</button><button type="button" class="btn btn-outline-danger" id="btnHapusFoto" title="Hapus foto"><i class="bi bi-trash"></i></button></div>
+        <div class="msg" id="fotoMsg" role="status"></div>
+        <div class="small text-muted mt-2">Format JPG, maksimal 4 MB. Gunakan foto melebar (landscape), minimal 1200 px, dengan objek utama di tengah.</div>
+      <% } else { %><div class="small text-muted">Simpan destinasi terlebih dahulu, lalu buka menu <b>Ubah</b> untuk mengunggah foto.</div><% } %>
+    </div>
+  </div></div>
+</div>
+<% if (editId) { %><script>
+(function () {
+  var id = <%= editId %>, token = '<%= csrfToken %>', prev = document.getElementById('prev'), msg = document.getElementById('fotoMsg'), inp = document.getElementById('fileFoto');
+  function say(t, ok) { msg.textContent = t; msg.className = 'msg ' + (ok ? 'text-success' : 'text-danger'); }
+  document.getElementById('btnPilih').onclick = function () { inp.click(); };
+  inp.onchange = function () {
+    if (!inp.files[0]) return; var fd = new FormData(); fd.append('foto', inp.files[0]); say('Mengunggah...', true);
+    fetch('/admin/wisata/' + id + '/foto', { method: 'POST', headers: { 'x-csrf-token': token }, body: fd }).then(function (r) { return r.json(); }).then(function (j) {
+      if (j.ok) { prev.innerHTML = '<img src="' + j.url + '" alt="">'; say(j.message, true); } else say(j.message || 'Gagal mengunggah.', false);
+    }).catch(function () { say('Gagal terhubung ke server.', false); }); inp.value = '';
+  };
+  document.getElementById('btnHapusFoto').onclick = function () {
+    if (!confirm('Hapus foto ini?')) return;
+    fetch('/admin/wisata/' + id + '/foto/hapus', { method: 'POST', headers: { 'x-csrf-token': token } }).then(function (r) { return r.json(); }).then(function (j) {
+      prev.innerHTML = '<span>Belum ada foto.<br>Ilustrasi bawaan dipakai.</span>'; say(j.message || 'Foto dihapus.', true);
+    });
+  };
+})();
+</script><% } %>
+<%- include('../partials/footer') %>

@@ -1,0 +1,33 @@
+<%- include('../partials/header') %>
+<div class="container py-4" style="max-width:980px">
+  <div class="page-head">
+    <div class="ph-ico"><i class="bi bi-ticket-detailed"></i></div>
+    <div class="ph-t"><h1>Pesanan loket</h1><p>Cari pesanan, lunasi pembayaran tunai di loket, batalkan, atau check-in manual.</p></div>
+  </div>
+  <form method="get" class="panel mb-3"><div class="row g-2">
+    <div class="col"><input name="q" class="form-control" value="<%= q %>" placeholder="Cari kode pesanan, kode tiket, nama, email, atau no. HP" aria-label="Cari pesanan"></div>
+    <input type="hidden" name="f" value="<%= f %>">
+    <div class="col-auto"><button class="btn btn-green"><i class="bi bi-search me-1"></i>Cari</button></div>
+  </div></form>
+  <div class="tabs-lite">
+    <% [['today','Kunjungan hari ini'],['pending','Menunggu bayar'],['all','Semua']].forEach(t => { %><a href="/petugas/pesanan?f=<%= t[0] %><%= q ? '&q=' + encodeURIComponent(q) : '' %>" class="<%= f === t[0] ? 'on' : '' %>"><%= t[1] %><% if (t[0] === 'pending') { %> <b><%= pendingCount %></b><% } %></a><% }) %>
+  </div>
+  <% const back = '?f=' + f + (q ? '&q=' + encodeURIComponent(q) : ''); const ST = {pending:'Menunggu bayar', paid:'Lunas', cancelled:'Dibatalkan', expired:'Kedaluwarsa'}; %>
+  <% rows.forEach(r => { %>
+    <div class="ord">
+      <% if (hasPhoto(r.dest_code)) { %><img class="thumb" src="<%= photoUrl(r.dest_code) %>" alt="" loading="lazy"><% } else { %><div class="tk-ico" style="background:<%= r.color %>;width:56px;height:56px"><i class="bi <%= r.icon %>"></i></div><% } %>
+      <div class="ord-main">
+        <div class="n"><%= r.dest_name %></div>
+        <div class="m"><%= r.visitor %><% if (r.phone) { %> &middot; <%= r.phone %><% } %></div>
+        <div class="m"><span class="font-monospace"><%= r.code %></span> &middot; <%= U.tanggalPendek(r.visit_date) %>, <%= r.visit_slot %> &middot; <%= r.qty_adult + r.qty_child %> orang &middot; <b><%= U.rupiah(r.total) %></b><%= r.queue_number ? ' · ' + B.queueLabel(r.dest_code, r.queue_number) : '' %></div>
+      </div>
+      <div class="ord-side">
+        <span class="status-pill pill-<%= r.status === 'paid' && r.ticket_status === 'used' ? 'used' : r.status %>"><%= r.status === 'paid' && r.ticket_status === 'used' ? 'Sudah masuk' : ST[r.status] %></span>
+        <%- include('../partials/booking_btns', { url: '/petugas/pesanan/' + r.code + '/aksi', actions: r.actions, status: r.status, back }) %>
+      </div>
+    </div>
+  <% }) %>
+  <% if (!rows.length) { %><div class="panel text-center text-muted py-5">Tidak ada pesanan yang cocok.</div><% } %>
+  <div class="small text-muted">Menampilkan maksimal 100 pesanan. Pesanan yang menunggu pembayaran ditampilkan lebih dulu.</div>
+</div>
+<%- include('../partials/footer') %>
